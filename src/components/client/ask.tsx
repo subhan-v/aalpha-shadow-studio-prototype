@@ -15,6 +15,7 @@ import { results } from "@/lib/results"
 import { handoffs } from "@/lib/client-data"
 import { useStore } from "@/lib/store"
 import type { Client, Role, Seat } from "@/lib/types"
+import { APP } from "@/lib/flags"
 
 export function AskView({ c, role, me }: { c: Client; role: Role; me: Seat }) {
   const { s } = useStore()
@@ -34,7 +35,7 @@ export function AskView({ c, role, me }: { c: Client; role: Role; me: Seat }) {
     <div data-tour="ask" className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3 rounded-[var(--radius-card)] border bg-card p-5">
         <span aria-hidden className="grid size-10 place-items-center rounded-full bg-[var(--seq-100)] text-[var(--seq-900)]"><Sparkles className="size-4" /></span>
-        <div className="flex min-w-0 flex-1 flex-col"><span className="flex items-center gap-2 font-semibold">Ask about your data <Pill t="info">Coming soon</Pill></span><span className="text-sm text-[var(--text-secondary)]">Plain questions, answered from what Shadow has measured. This preview shows sample answers.</span></div>
+        <div className="flex min-w-0 flex-1 flex-col"><span className="flex items-center gap-2 font-semibold">Ask about your data <Pill t="info">Coming soon</Pill></span><span className="text-sm text-[var(--text-secondary)]">Plain questions, answered from what {APP} has measured. This preview shows sample answers.</span></div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -64,7 +65,7 @@ export function AskView({ c, role, me }: { c: Client; role: Role; me: Seat }) {
           <Section title="Use it in your own AI tools" sub="Coming soon">
             <div className="flex gap-3 text-sm">
               <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--surface-2)]"><Plug className="size-4" /></span>
-              <span className="text-[var(--text-secondary)]">Connect Shadow to Claude, ChatGPT or Cursor and ask the same questions there, with the same access rules.</span>
+              <span className="text-[var(--text-secondary)]">Connect {APP} to Claude, ChatGPT or Cursor and ask the same questions there, with the same access rules.</span>
             </div>
           </Section>
         </div>

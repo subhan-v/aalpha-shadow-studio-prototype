@@ -33,7 +33,7 @@ import { useStore } from "@/lib/store"
 import { recordingNow, recStatus } from "@/lib/recording"
 import { past90, phase, recurringMonth } from "@/lib/renewal"
 import { cn } from "@/lib/utils"
-import { IS_DEMO } from "@/lib/flags"
+import { IS_DEMO, APP } from "@/lib/flags"
 import { Segmented } from "@/components/bits"
 
 type Role = "Owner" | "Manager" | "Member"
@@ -176,14 +176,14 @@ function ClientApp() {
               <span className="relative grid size-10 place-items-center"><span className="absolute size-10 animate-ping rounded-full bg-[var(--bronze)]/15" /><span className="size-3 rounded-full bg-[var(--bronze)]" /></span>
               <div className="flex flex-1 flex-col">
                 <span className="font-semibold">Collecting</span>
-                <span className="text-sm text-[var(--text-secondary)]">{n === null ? "Your kickoff starts the 90 days. Install Shadow on the day of kickoff." : `${rec.on} of ${rec.of} people recording. Your first findings show up after we review them, usually in week one.`}</span>
+                <span className="text-sm text-[var(--text-secondary)]">{n === null ? `Your kickoff starts the 90 days. Install ${APP} on the day of kickoff.` : `${rec.on} of ${rec.of} people recording. Your first findings show up after we review them, usually in week one.`}</span>
               </div>
             </div>
           )}
           {!gated && tab === "team" && <HomeTab c={c} go={go} rates={role === "Owner"} people={role === "Owner"} scope={role === "Owner" || seatsInScope(c, role, me).length < MIN_TEAM ? undefined : { seats: seatsInScope(c, role, me), label: scopeLabel(c, role, me) }} />}
           {!gated && tab === "insights" && <InsightsHome c={c} role={role} me={me} go={go} />}
           {!gated && tab === "me" && (role === "Member"
-            ? <>{!c.prefs[me.id]?.checklist?.includes("walkthrough") && <MemberTour c={c} me={me} go={go} />}<MyTimeTab c={c} me={me} money={false} compact found={<div className="flex flex-col gap-3"><h2 className="text-lg">What Shadow found in your work</h2><MyWorkflows c={c} me={me} /></div>} /></>
+            ? <>{!c.prefs[me.id]?.checklist?.includes("walkthrough") && <MemberTour c={c} me={me} go={go} />}<MyTimeTab c={c} me={me} money={false} compact found={<div className="flex flex-col gap-3"><h2 className="text-lg">What {APP} found in your work</h2><MyWorkflows c={c} me={me} /></div>} /></>
             : <MyTimeTab c={c} me={me} money={role === "Owner"} />)}
           {!gated && tab === "goals" && <div className="flex flex-col gap-5"><h2 className="text-lg">Company goals</h2><GoalsView c={c} role={role} me={me} /><GoalLevels c={c} role={role} me={me} /></div>}
           {tab === "how" && (role === "Member" ? <YourData c={c} me={me} go={go} /> : <HowItWorks c={c} money />)}

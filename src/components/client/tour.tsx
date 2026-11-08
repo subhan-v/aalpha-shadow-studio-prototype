@@ -21,6 +21,7 @@ import { results } from "@/lib/results"
 import { useStore } from "@/lib/store"
 import type { Client } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 /** One stop: the page to open, the area to light up, a plain headline, what it is, why an owner
  *  cares, and what to click. `sub` opens a Settings section. An empty target lights up nothing. */
@@ -45,14 +46,14 @@ export function tourStops(c: Client, today: string): Stop[] {
   const interviewed = c.seats.filter((x) => x.interview?.status === "approved").length
   const pods = orgOf(c) !== "function"
   return [
-    { tab: "how", target: "next90", title: "Shadow, in one minute",
-      what: "Shadow watches how your team works, finds the work they repeat, and our team builds AI agents to take it over.",
+    { tab: "how", target: "next90", title: `${APP}, in one minute`,
+      what: `${APP} watches how your team works, finds the work they repeat, and our team builds AI agents to take it over.`,
       why: "The promise: 40 hours a week of repeat work found by day 30, and 40 hours a week handed back by day 90. Both are guaranteed.",
       click: "Press Next, or use the arrow keys." },
     { tab: "how", target: "sources", title: "Where the data comes from",
       what: "Four sources: a small desktop app, your Slack (public channels and the private ones the founder is in), your calendar and your CRM.",
       why: "Together they show how work really gets done, not how people remember doing it." },
-    { tab: "how", target: "privacy", title: "What Shadow never sees",
+    { tab: "how", target: "privacy", title: `What ${APP} never sees`,
       what: "You choose the apps and sites. No video, no mic, no camera, no Slack direct messages, and private info is redacted on the laptop before anything is sent.",
       why: "Anyone can pause it at any time, and the analysis only looks at high-level patterns." },
     { tab: "getstarted", target: "getstarted", title: "Everyone starts with a short checklist",
@@ -60,7 +61,7 @@ export function tourStops(c: Client, today: string): Stop[] {
       why: "The rest of the app opens once the checklist is done, so nobody is half set up.",
       click: "Each step has its own button. Agreeing is the only way past consent." },
     { tab: "interview", target: "interview", title: "A 5-minute voice interview",
-      what: "Five questions, picked for the person's role. As they talk, Shadow turns answers into cards: goals, steps in their work, things to hand off.",
+      what: `Five questions, picked for the person's role. As they talk, ${APP} turns answers into cards: goals, steps in their work, things to hand off.`,
       why: `Each person confirms every card before anything is used${interviewed ? `. ${interviewed} of ${c.seats.length} people have done theirs` : ""}. The audio is deleted after processing.`,
       click: "Press Redo it to walk through the questions yourself." },
     { tab: "team", target: "kpis", title: `${hrsMo.toLocaleString()} hours a month of repeat work`,
@@ -73,7 +74,7 @@ export function tourStops(c: Client, today: string): Stop[] {
       click: "Click one to see how that work is done today." },
     { tab: "roster", target: "roster", title: "Who's recording, and who isn't",
       what: "Everyone on the team with their status: recording, paused, not installed, missing a permission or consent.",
-      why: "Shadow only finds what it can see. One click nudges a person, or everyone stuck at the same step, in your name.",
+      why: `${APP} only finds what it can see. One click nudges a person, or everyone stuck at the same step, in your name.`,
       click: "Scroll down to the list: anyone who isn't recording has a Nudge button." },
     { tab: "goals", target: "goal-lock", title: "Your goals steer everything",
       what: `You set ${goals || "your"} company goals with us and lock them in. Changing one later is a request we approve.`,
@@ -86,7 +87,7 @@ export function tourStops(c: Client, today: string): Stop[] {
       why: fastest ? `"${fastest.name}" is done ${fastest.ways} different ways. The fastest is ${Math.round((fastest.maxMin / fastest.minMin) * 10) / 10}x quicker than the slowest, and becomes the standard.` : "The fastest way of doing each one becomes the standard.",
       click: "The Processes toggle at the top shows where work waits between steps." },
     { tab: "people", target: "people", title: "Every person, one row",
-      what: "What Shadow found in each person's work, and the hours the agents give back to them.",
+      what: `What ${APP} found in each person's work, and the hours the agents give back to them.`,
       why: "It's time handed back, not a productivity score. Managers see their own team, without pay rates." },
     { tab: "exec", target: "exec", title: "The Executive report",
       what: "Your own week next to the company's: where leadership time goes, what could be delegated, and the risks waiting on you.",

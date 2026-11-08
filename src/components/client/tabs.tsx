@@ -18,6 +18,7 @@ import { clientTags, FUNCTIONS, orgOf, podTimes, scopeFor, teamShare } from "@/l
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Empty } from "./home"
+import { APP } from "@/lib/flags"
 
 const TIER: Record<Tier, [string, string]> = { H: ["High return", "#1c5cab"], M: ["Medium return", "#3987e5"], L: ["Low return", "#86b6ef"] }
 const fmtMin = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}h ${String(Math.round(m % 60)).padStart(2, "0")}m` : `${Math.round(m)}m`)
@@ -44,7 +45,7 @@ export function WorkTab({ c, initialCat, only, role = "Owner", me }: { c: Client
   const focus = goalFocus(c)
   const [tune, setTune] = useState(focus.size > 0)
   const [sel, setSel] = useState<string | null>((focus.size ? tuned(c, vis) : vis)[0]?.id ?? null)
-  if (!all.length) return <Empty title="Findings are being reviewed" body="Shadow is learning how your team works. We review every finding before it shows up here." />
+  if (!all.length) return <Empty title="Findings are being reviewed" body={`${APP} is learning how your team works. We review every finding before it shows up here.`} />
   const filtered = vis.filter((w) => cat === "All" || w.category === cat)
   const shown = tune ? tuned(c, filtered) : [...filtered].sort((a, b) => b.hoursWk - a.hoursWk)
   const served = vis.filter((x) => focus.has(x.category)).length

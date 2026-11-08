@@ -12,6 +12,7 @@ import { recordingNow } from "@/lib/recording"
 import { past90 } from "@/lib/renewal"
 import type { Client } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 export const PRIVACY: [typeof Lock, string, string][] = [
   [ListChecks, "You choose what it sees", "Only the work apps and sites on your allowlist."],
@@ -25,8 +26,8 @@ export const PRIVACY: [typeof Lock, string, string][] = [
 ]
 
 const DAYS: { day: number; at: string; name: string; body: string; promise?: boolean }[] = [
-  { day: 0, at: "Day 0", name: "Kickoff and install", body: "Shadow goes on every work laptop within 48 hours." },
-  { day: 7, at: "Weeks 1 to 3", name: "Measure", body: "Shadow learns how the team works. We review every finding before you see it, and start building with the team that has the most to gain." },
+  { day: 0, at: "Day 0", name: "Kickoff and install", body: `${APP} goes on every work laptop within 48 hours.` },
+  { day: 7, at: "Weeks 1 to 3", name: "Measure", body: `${APP} learns how the team works. We review every finding before you see it, and start building with the team that has the most to gain.` },
   { day: 21, at: "Day 21", name: "Readout", body: "We walk you through what we found and pick the first agents with you." },
   { day: 30, at: "Day 30", name: "40 hours found", body: "40 hours a week of repeat work found, and your first agent live.", promise: true },
   { day: 31, at: "Days 31 to 85", name: "Hand it over", body: "Agents take the work back, one by one. An update lands every Friday." },
@@ -95,7 +96,7 @@ export function HowItWorks({ c, money }: { c: Client; money: boolean }) {
       </div>
 
       <div data-tour="privacy">
-        <Section title="Privacy, in plain words" sub="What Shadow does and doesn't do">
+        <Section title="Privacy, in plain words" sub={`What ${APP} does and doesn't do`}>
           <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
             {PRIVACY.map(([Icon, k, v]) => (
               <div key={k} className="flex gap-3">

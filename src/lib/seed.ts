@@ -11,6 +11,7 @@ import { sampleBugs } from "./bugs"
 import { ROLE_CATS } from "./roles"
 
 import type { Agent, Category, Client, ISODate, Member, Seat, Settings, State } from "./types"
+import { APP } from "@/lib/flags"
 
 export type Base = Omit<Client, "workflows" | "sops" | "goals" | "fit" | "fitPublished" | "fitImported" | "reports" | "access" | "capture" | "connections" | "pay" | "prefs" | "schedules" | "ci">
 
@@ -250,7 +251,7 @@ export function seed(): State {
   clients.unshift(withGoalLevels(demoClient(t), t, true))
   // Contracts are signed in the e-signature tool; Studio keeps the facts and a link. Consent is per person.
   for (const c of clients) {
-    if (c.agreementSigned) c.contract = { version: "Shadow agreement v1.2", signed: c.signedDate, signer: c.seats[0]?.name ?? "Owner", term: "90 days, then monthly", url: "#signed-agreement" }
+    if (c.agreementSigned) c.contract = { version: `${APP} agreement v1.2`, signed: c.signedDate, signer: c.seats[0]?.name ?? "Owner", term: "90 days, then monthly", url: "#signed-agreement" }
     c.consentVersion = "Consent form v1.0"
     // Consent was given at install or kickoff, never in the future.
     c.seats = c.seats.map((x) => { const at = [x.consentAt, x.installAt, c.kickoffDate, c.signedDate].find((d) => d && d <= t) ?? c.signedDate; return x.consent ? { ...x, consentAt: at, consentVersion: "Consent form v1.0" } : x })
@@ -277,9 +278,9 @@ export function seed(): State {
     c.workflows = c.workflows.map((w) => { const d = doers(w.category); return { ...w, verifiedBy: w.verifiedBy?.filter((n) => d.has(n)), handoffBy: w.handoffBy?.filter((n) => d.has(n)) } })
   }
   return { version: 22, bugs: sampleBugs(t), pricing: { recurring: [{ from: "2026-01-01", monthly: 3000 }], upfront: 5000, monthly: 6000 }, stripe: { via: "key", at: addDays(t, -14) }, requests, linearSeq: 150, sequence: SEQUENCE, autopilot: Object.fromEntries(clients.map((c) => [c.id, c.id !== "halden"])), sends: [
-    { id: "sd1", clientId: "larkspur", seatIds: ["larkspur-s17"], stepId: "rec-nudge", at: addDays(t, -3), status: "Sent", by: "Subhan", body: "Hi Nadia, Shadow went quiet on your Mac. Paused or closed? Reopen it from the menu bar when you're back on work." },
-    { id: "sd2", clientId: "larkspur", seatIds: ["larkspur-s31"], stepId: "per-fix", at: addDays(t, -5), status: "Sent", by: "Subhan", body: "Almost there. Open System Settings > Privacy & Security, switch on Shadow under Screen Recording, Accessibility and Input Monitoring, then reopen it." },
-    { id: "sd3", clientId: "larkspur", seatIds: ["larkspur-s31"], stepId: "owner:Permissions missing", at: addDays(t, -1), status: "Sent", by: "Dana Whitfield", body: "Hi Nora, Shadow needs its 3 Mac permissions: Screen Recording, Accessibility and Input Monitoring. System Settings > Privacy & Security." },
+    { id: "sd1", clientId: "larkspur", seatIds: ["larkspur-s17"], stepId: "rec-nudge", at: addDays(t, -3), status: "Sent", by: "Subhan", body: `Hi Nadia, ${APP} went quiet on your Mac. Paused or closed? Reopen it from the menu bar when you're back on work.` },
+    { id: "sd2", clientId: "larkspur", seatIds: ["larkspur-s31"], stepId: "per-fix", at: addDays(t, -5), status: "Sent", by: "Subhan", body: `Almost there. Open System Settings > Privacy & Security, switch on ${APP} under Screen Recording, Accessibility and Input Monitoring, then reopen it.` },
+    { id: "sd3", clientId: "larkspur", seatIds: ["larkspur-s31"], stepId: "owner:Permissions missing", at: addDays(t, -1), status: "Sent", by: "Dana Whitfield", body: `Hi Nora, ${APP} needs its 3 Mac permissions: Screen Recording, Accessibility and Input Monitoring. System Settings > Privacy & Security.` },
   ], slack: {}, sender: "Subhan", today: t, me: "Subhan", team: TEAM, clients, sim: { pipelineFailing: true }, settings: DEFAULT_SETTINGS, acks: {}, done: {}, assign: {}, viewLog: [], audit: [] }
 }
 

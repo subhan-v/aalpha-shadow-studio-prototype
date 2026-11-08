@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useStore } from "@/lib/store"
 import type { BusinessProfile, Client } from "@/lib/types"
+import { APP } from "@/lib/flags"
 
 const EMPTY: BusinessProfile = { offer: "", pricing: "", pods: [], execRate: 0, ownerValue: 0, targetMargin: 0, otherCompanies: [] }
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`
@@ -51,7 +52,7 @@ export function BusinessProfileForm({ c }: { c: Client }) {
         </div>
       </Section>
 
-      <Section title="Other companies leadership works on" sub="Tag their Slack workspaces, sites and repos. Shadow then splits leadership time by company and shows only the totals.">
+      <Section title="Other companies leadership works on" sub={`Tag their Slack workspaces, sites and repos. ${APP} then splits leadership time by company and shows only the totals.`}>
         <div className="flex flex-col gap-3">
           {b.otherCompanies.map((o, i) => (
             <div key={i} className="grid gap-2 rounded-xl border p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_32px] md:items-center">

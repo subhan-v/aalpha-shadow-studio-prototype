@@ -18,6 +18,7 @@ import { useStore } from "@/lib/store"
 import type { Client, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { PRIVACY } from "./how"
+import { APP } from "@/lib/flags"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -36,7 +37,7 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
   })
 
   const sources: { icon: typeof Laptop; name: string; on: boolean; status: string; records: string; never?: string }[] = [
-    { icon: Laptop, name: "Shadow on your laptop", on: installed(me, t), status: installed(me, t) ? `${st.status} · ${hours}` : "Not installed yet",
+    { icon: Laptop, name: `${APP} on your laptop`, on: installed(me, t), status: installed(me, t) ? `${st.status} · ${hours}` : "Not installed yet",
       records: "Screenshots at intervals, plus the app, site and clicks, only for the work apps and sites on your allowlist.",
       never: "Video, your mic or camera, and anything off your allowlist." },
     { icon: MessageSquare, name: "Slack", on: c.slackConnected, status: c.slackConnected ? (me.slack ? `Signed in as @${me.slack.handle} · ${channels} channels` : `${channels} channels`) : "Not connected",
@@ -53,7 +54,7 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
       <div className="flex flex-wrap items-center gap-4 rounded-[var(--radius-card)] border bg-card p-5">
         <span aria-hidden className="grid size-10 place-items-center rounded-full bg-[var(--good-bg)] text-[var(--delta-good)]"><ShieldCheck className="size-5" /></span>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="font-semibold">Shadow studies the work, not the worker</span>
+          <span className="font-semibold">{APP} studies the work, not the worker</span>
           <span className="text-sm text-[var(--text-secondary)]">It looks for repeat work an agent could take off your plate. Here is exactly what it records from you, {me.name.split(" ")[0]}, and what it never does.</span>
         </div>
       </div>
@@ -69,7 +70,7 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-[var(--text-muted)]">Consent: {hasConsent(c, me) ? `you agreed to ${me.consentVersion ?? c.consentVersion ?? "the consent form"}${me.consentAt ? ` on ${fmtLong(me.consentAt)}` : ""}.` : "not given yet. Shadow can't record you until you agree."}</p>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">Consent: {hasConsent(c, me) ? `you agreed to ${me.consentVersion ?? c.consentVersion ?? "the consent form"}${me.consentAt ? ` on ${fmtLong(me.consentAt)}` : ""}.` : `not given yet. ${APP} can't record you until you agree.`}</p>
       </Section>
 
       <Section title="Privacy, in plain words" sub="The same facts your company signed up to">

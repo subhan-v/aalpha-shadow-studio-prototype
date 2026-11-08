@@ -19,6 +19,7 @@ import { SlackAvatar } from "./avatar"
 import { displayTeams, homeTeam, seatsInScope, suggestFunction, teamsOf } from "@/lib/teams"
 import type { Client, Role, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 const TONE: Record<RecStatus, "good" | "warn" | "bad" | "muted" | "info"> = {
   Recording: "good", Paused: "info", "No consent": "warn", "Quiet 3+ days": "bad", "Permissions missing": "warn", "Not installed": "warn", "Invited, not joined": "warn", "On leave": "muted", Excluded: "muted",
@@ -148,7 +149,7 @@ export function RosterView({ c, role, me }: { c: Client; role: Role | "Admin"; m
 
       <Section title="Your Monday digest" sub="A preview of what lands in your Slack each week">
         <div className="rounded-2xl bg-[var(--surface-2)] p-4 text-sm leading-relaxed">
-          <span className="font-semibold">Shadow · weekly recording check</span>
+          <span className="font-semibold">{APP} · weekly recording check</span>
           <p className="mt-1 text-[var(--text-secondary)]">{cap.pct}% of the team&apos;s working hours captured last week. {rec} of {active.length} recording.</p>
           <ul className="mt-2 flex flex-col gap-1">{digest.map((d) => <li key={d}>{d}</li>)}</ul>
         </div>

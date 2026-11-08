@@ -13,6 +13,7 @@ import { fmt } from "@/lib/dates"
 import { useStore } from "@/lib/store"
 import type { Client, Role, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 export function GetStarted({ c, me, role, go }: { c: Client; me: Seat; role: Role; go: (tab: string) => void }) {
   const { s, update } = useStore()
@@ -37,8 +38,8 @@ export function GetStarted({ c, me, role, go }: { c: Client; me: Seat; role: Rol
         <span className="flex items-baseline justify-between gap-2"><span className="font-semibold">{n} of {steps.length} done</span><span className="text-xs text-[var(--text-muted)]">{role} setup</span></span>
         <span className="h-2 rounded-full bg-[var(--surface-2)]"><span className="block h-2 rounded-full bg-[var(--status-good)]" style={{ width: `${(n / steps.length) * 100}%` }} /></span>
         {n < steps.length && (open
-          ? <span className="text-xs text-[var(--text-muted)]">Shadow is open for you. Finish the rest when you can.</span>
-          : <span className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]"><Lock className="size-3.5" />The rest of Shadow opens once these are done.</span>)}
+          ? <span className="text-xs text-[var(--text-muted)]">{APP} is open for you. Finish the rest when you can.</span>
+          : <span className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]"><Lock className="size-3.5" />The rest of {APP} opens once these are done.</span>)}
       </div>
       {role === "Owner" && (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card px-4 py-3 text-sm">
@@ -61,14 +62,14 @@ export function GetStarted({ c, me, role, go }: { c: Client; me: Seat; role: Rol
                 <ul className="flex list-disc flex-col gap-1 pl-5">{CONSENT_POINTS.map((p) => <li key={p}>{p}</li>)}</ul>
                 <span className="flex flex-wrap items-center gap-3">
                   <Button size="sm" className="rounded-[10px]" onClick={agree}>I agree</Button>
-                  <button onClick={() => go("how")} className="text-xs font-medium text-[var(--bronze)] hover:underline">Read how Shadow works</button>
+                  <button onClick={() => go("how")} className="text-xs font-medium text-[var(--bronze)] hover:underline">Read how {APP} works</button>
                   <span className="text-xs text-[var(--text-muted)]">We save who agreed, when and to which version.</span>
                 </span>
               </div>
             )}
-            {!x.done && x.k === "slackscope" && <Button size="sm" className="rounded-[10px]" onClick={() => update(c.id, (y, t) => ({ ...y, connections: { ...y.connections, slackDisclosure: { by: me.name, at: t } }, log: [{ date: t, text: `${me.name} confirmed what Shadow reads in Slack.` }, ...y.log] }))}>I understand</Button>}
+            {!x.done && x.k === "slackscope" && <Button size="sm" className="rounded-[10px]" onClick={() => update(c.id, (y, t) => ({ ...y, connections: { ...y.connections, slackDisclosure: { by: me.name, at: t } }, log: [{ date: t, text: `${me.name} confirmed what ${APP} reads in Slack.` }, ...y.log] }))}>I understand</Button>}
             {!x.done && x.k === "slack" && <Button size="sm" className="rounded-[10px] bg-[#4a154b] hover:bg-[#4a154b]/90" onClick={signIn}>Sign in with Slack</Button>}
-            {!x.done && x.k === "install" && hasConsent(c, me) && <Button size="sm" className="rounded-[10px]" title="In the prototype this marks Shadow as installed" onClick={() => seat((y, t) => ({ ...y, installAt: t, permissions: false }), "installed Shadow")}><Download />Download for Mac</Button>}
+            {!x.done && x.k === "install" && hasConsent(c, me) && <Button size="sm" className="rounded-[10px]" title={`In the prototype this marks ${APP} as installed`} onClick={() => seat((y, t) => ({ ...y, installAt: t, permissions: false }), `installed ${APP}`)}><Download />Download for Mac</Button>}
             {!x.done && x.k === "install" && !hasConsent(c, me) && <span className="text-xs text-[var(--text-muted)]">Agree to the consent form first.</span>}
             {!x.done && x.k === "perms" && me.installAt && <Button size="sm" variant="outline" className="rounded-[10px]" title="In the prototype this marks the permissions as on" onClick={() => seat((y) => ({ ...y, permissions: true }), "turned on the Mac permissions")}>I&apos;ve turned them on</Button>}
             {!x.done && x.k === "ci" && <span className="flex flex-wrap gap-2"><a href={surveyLink(c)} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center gap-1 rounded-[10px] border px-3 text-sm font-medium">Take the survey<ExternalLink className="size-3.5" /></a><Button size="sm" variant="ghost" className="rounded-[10px]" onClick={() => seat((y) => ({ ...y, ciSurvey: true }), "finished the Culture Intelligence survey")}>I&apos;ve finished it</Button></span>}
@@ -84,7 +85,7 @@ export function GetStarted({ c, me, role, go }: { c: Client; me: Seat; role: Rol
 /** Shown in place of a tab while setup is unfinished. */
 export function Gate({ go }: { go: (tab: string) => void }) {
   return (
-    <Section title="Finish setting up first" sub="Shadow opens once your Get started steps are done">
+    <Section title="Finish setting up first" sub={`${APP} opens once your Get started steps are done`}>
       <Button className="rounded-[10px]" onClick={() => go("getstarted")}>Go to Get started</Button>
     </Section>
   )

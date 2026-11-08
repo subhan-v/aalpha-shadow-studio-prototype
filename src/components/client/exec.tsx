@@ -23,6 +23,7 @@ import { execWeek, handOffWk } from "@/lib/people"
 import type { Client, Role, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { Empty } from "./home"
+import { APP } from "@/lib/flags"
 
 const C = ["#2a78d6", "#eb6834", "#eda100", "#1baf7a", "#6250d6", "#c3c8d2", "#e87ba4"]
 
@@ -73,7 +74,7 @@ export function ExecView({ c, role, me }: { c: Client; role: Role; me: Seat }) {
         </div>
       )}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3">
-        <Kpi icon={<Clock />} hue="#2a78d6" label="Hours this week" value={w.hours} note="Across every source Shadow sees" />
+        <Kpi icon={<Clock />} hue="#2a78d6" label="Hours this week" value={w.hours} note={`Across every source ${APP} sees`} />
         <Kpi icon={<Building2 />} hue="#1baf7a" label={`On ${c.name}`} value={`${w.thisCo}%`} note={w.otherCo ? `${w.otherCo}% on other work` : "All of it"} />
         <Kpi icon={<Timer />} hue="#6250d6" label="Deep focus" value={`${w.focus.hours} h`} note={`Blocks of 25 min or more · longest ${w.focus.longestMin} min`} />
         <Kpi icon={<Hourglass />} hue="#eb6834" label="Waiting on them" value={w.approvalsWaiting} note="Approvals and replies right now" t={w.approvalsWaiting > 8 ? "warn" : undefined} />

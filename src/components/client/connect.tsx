@@ -17,6 +17,7 @@ import { useStore } from "@/lib/store"
 import { teamsOf } from "@/lib/teams"
 import type { Client, Connector } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 export function ConnectorsPanel({ c, who, isOwner }: { c: Client; who: string; isOwner: boolean }) {
   const { update } = useStore()
@@ -61,7 +62,7 @@ export function ConnectorsPanel({ c, who, isOwner }: { c: Client; who: string; i
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Connect {pending?.name}</DialogTitle>
-            <DialogDescription>You&apos;ll sign in on Composio&apos;s page and come straight back. Shadow only reads; it never sends or changes anything.</DialogDescription>
+            <DialogDescription>You&apos;ll sign in on Composio&apos;s page and come straight back. {APP} only reads; it never sends or changes anything.</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 text-sm">
             <span className="font-medium">Who it covers</span>
@@ -133,7 +134,7 @@ export function ChannelsPanel({ c, who = "Owner", isOwner = false }: { c: Client
         <span className="text-xs text-[var(--text-muted)]">Private channels (lock) are included because the workspace admin is in them. Everyone is told this in the consent form.</span>
         {isOwner && (k.slackDisclosure
           ? <span className="text-xs text-[var(--delta-good)]">Confirmed by {k.slackDisclosure.by} on {fmt(k.slackDisclosure.at)}.</span>
-          : <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-[var(--watch-bg)] p-3 text-sm text-[var(--watch-fg)]"><span className="min-w-0 flex-1">{SLACK_SCOPE} Your team is told the same.</span><Button size="sm" className="rounded-[10px]" onClick={() => set({ slackDisclosure: { by: who, at: today } }, `${who} confirmed what Shadow reads in Slack.`)}>I understand</Button></div>)}
+          : <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-[var(--watch-bg)] p-3 text-sm text-[var(--watch-fg)]"><span className="min-w-0 flex-1">{SLACK_SCOPE} Your team is told the same.</span><Button size="sm" className="rounded-[10px]" onClick={() => set({ slackDisclosure: { by: who, at: today } }, `${who} confirmed what ${APP} reads in Slack.`)}>I understand</Button></div>)}
       </div>
     </Section>
   )

@@ -11,6 +11,7 @@ import { FAQ } from "@/lib/faq"
 import { newRequest } from "@/lib/requests"
 import { useStore } from "@/lib/store"
 import type { Client, Seat } from "@/lib/types"
+import { APP } from "@/lib/flags"
 
 const STOP = new Set(["the", "a", "an", "is", "it", "my", "i", "do", "does", "can", "what", "how", "to", "of", "on", "in", "and", "or", "be", "are", "you", "your", "me", "this", "that", "will", "our", "its", "any", "get", "there", "who", "why", "when", "much"])
 const words = (x: string) => x.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 2 && !STOP.has(w))
@@ -27,7 +28,7 @@ export function SupportChat({ c, me }: { c: Client; me: Seat }) {
   const { mutate } = useStore()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState("")
-  const [log, setLog] = useState<{ who: "you" | "bot"; text: string }[]>([{ who: "bot", text: "Hi, I can answer common questions about Shadow. For anything else, ask a person." }])
+  const [log, setLog] = useState<{ who: "you" | "bot"; text: string }[]>([{ who: "bot", text: `Hi, I can answer common questions about ${APP}. For anything else, ask a person.` }])
   const [sent, setSent] = useState(false)
   const ask = () => {
     const text = q.trim()
@@ -51,7 +52,7 @@ export function SupportChat({ c, me }: { c: Client; me: Seat }) {
           <div className="flex items-center justify-between gap-2 border-t px-4 py-2.5 text-xs text-[var(--text-muted)]">
             <span>Answers come from approved help only.</span>
             <button disabled={sent} className="font-medium text-[var(--bronze)] hover:underline disabled:text-[var(--text-muted)]" onClick={() => {
-              const last = [...log].reverse().find((m) => m.who === "you")?.text ?? "Needs help with Shadow"
+              const last = [...log].reverse().find((m) => m.who === "you")?.text ?? `Needs help with ${APP}`
               mutate((p) => newRequest(p, { clientId: c.id, from: `${me.name} (${c.name})`, source: "Client app", kind: /broken|bug|wrong|error|not working|doesn.t work|crash|stuck/i.test(last) ? "Bug" : "Question", title: last.slice(0, 80), detail: "From the help chat.", priority: "Normal", assignee: c.owner }))
               setLog((l) => [...l, { who: "bot", text: "Done. Subhan will reply here and in Slack." }])
               setSent(true)

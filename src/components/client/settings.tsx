@@ -30,6 +30,7 @@ import { OrgSettings } from "./org"
 import { ChannelsPanel, ConnectorsPanel, ReportDelivery } from "./connect"
 import { isExec } from "@/lib/setup"
 import { homeTeam, seatsInScope, suggestFunction, teamsOf } from "@/lib/teams"
+import { APP } from "@/lib/flags"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 const SEES: Record<Role, string> = { Owner: "Everything, named people", Manager: "Their teams, named people", Member: "Their own time, team totals" }
@@ -170,7 +171,7 @@ function CaptureRules({ c }: { c: Client }) {
   const k = c.capture
   return (
     <>
-      <Section title="What Shadow may capture" sub="Shadow only sees the work apps and sites on this allowlist. Everything else is left out.">
+      <Section title={`What ${APP} may capture`} sub={`${APP} only sees the work apps and sites on this allowlist. Everything else is left out.`}>
         <div className="grid gap-5 lg:grid-cols-2">
           <ChipList label="Work apps" items={k.allowApps} tone="good" placeholder="e.g. Figma" onChange={(v) => setCapture({ allowApps: v }, "Allowed apps updated.")} />
           <ChipList label="Work websites" items={k.allowDomains} tone="good" placeholder="e.g. app.hubspot.com" onChange={(v) => setCapture({ allowDomains: v }, "Allowed websites updated.")} />
@@ -229,7 +230,7 @@ function PeopleSchedules({ c, owner, scope }: { c: Client; owner: boolean; scope
   const { patch } = useClient(c)
   const set = (id: string, v: Client["schedules"][string] | null, who: string) => patch((y) => { const n = { ...y.schedules }; if (v) n[id] = v; else delete n[id]; return { ...y, schedules: n } }, v ? `Schedule for ${who}: ${v.start} to ${v.end}.` : `${who} back on the team schedule.`)
   return (
-    <Section title="Each person's schedule" sub="Set by the owner or a manager. Shadow records each person only inside their own hours. People can narrow theirs, never widen it.">
+    <Section title="Each person's schedule" sub={`Set by the owner or a manager. ${APP} records each person only inside their own hours. People can narrow theirs, never widen it.`}>
       <div className="overflow-x-auto">
         <Table className="min-w-[980px]">
           <TableHeader><TableRow><TableHead>Person</TableHead><TableHead>Preset</TableHead><TableHead>Days</TableHead><TableHead>Hours</TableHead><TableHead /></TableRow></TableHeader>
@@ -331,7 +332,7 @@ function ConsentRecord({ c, me }: { c: Client; me: Seat }) {
     <Section title="Your consent" sub="What you agreed to, and when">
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className="flex-1">{me.consent ? `You agreed to ${me.consentVersion ?? c.consentVersion ?? "the consent form"}${me.consentAt ? ` on ${fmtLong(me.consentAt)}` : ""}.` : "You haven't agreed to the consent form, so nothing is recorded for you."}</span>
-        {me.consent && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => { if (window.confirm("Withdraw your consent? Shadow stops recording you, and your owner is told.")) update(c.id, (x, t) => ({ ...x, seats: x.seats.map((y) => (y.id === me.id ? { ...y, consent: false, consentVersion: null } : y)), log: [{ date: t, text: `${me.name} withdrew consent. Recording stopped for them.` }, ...x.log] })) }}>Withdraw consent</Button>}
+        {me.consent && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => { if (window.confirm(`Withdraw your consent? ${APP} stops recording you, and your owner is told.`)) update(c.id, (x, t) => ({ ...x, seats: x.seats.map((y) => (y.id === me.id ? { ...y, consent: false, consentVersion: null } : y)), log: [{ date: t, text: `${me.name} withdrew consent. Recording stopped for them.` }, ...x.log] })) }}>Withdraw consent</Button>}
       </div>
     </Section>
   )
@@ -428,7 +429,7 @@ function Mine({ c, me, role }: { c: Client; me: Seat; role: Role }) {
           ))}
         </div>
       </Section>
-      <Section title="Take off my allowlist" sub={c.capture.membersCanBlock ? "Apps and sites from the team allowlist that Shadow should skip for you." : "Your owner manages the team allowlist"}>
+      <Section title="Take off my allowlist" sub={c.capture.membersCanBlock ? `Apps and sites from the team allowlist that ${APP} should skip for you.` : "Your owner manages the team allowlist"}>
         <ChipList label="Apps and websites" items={p.block} tone="bad" disabled={!c.capture.membersCanBlock} placeholder="e.g. personal Gmail" onChange={(v) => setP({ block: v }, `${me.name} updated their block list.`)} />
         <p className="mt-3 text-xs text-[var(--text-muted)]">The team also blocks: {[...c.capture.blockApps, ...c.capture.blockDomains].slice(0, 5).join(", ")}{c.capture.blockApps.length + c.capture.blockDomains.length > 5 ? "…" : ""}</p>
       </Section>

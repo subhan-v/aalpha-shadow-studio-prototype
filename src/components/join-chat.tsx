@@ -19,24 +19,25 @@ import { CONSENT_POINTS, interviewSetFor, onboardingSteps, questionsFor } from "
 import { useStore } from "@/lib/store"
 import type { Client, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP, IS_DEMO } from "@/lib/flags"
 
 type Stage = "slack" | "consent" | "install" | "perms" | "extension" | "interview" | "done"
 type Msg = { id: string; who: "guide" | "you"; text: string; card?: "slack" | "consent" | "install" | "perms" | "extension" | "interview" | "heard" | "summary" | "done" | "subhan"; q?: number; ask?: string }
 
 const HUE: Record<Stage, string> = { slack: "#e7c9a6", consent: "#c9dccb", install: "#c8d6ea", perms: "#d9cde8", extension: "#e8d3c4", interview: "#cfe0dc", done: "#e9dfb8" }
-const CHECKS = ["Shadow app connected", "Screen Recording on", "Accessibility on", "Input Monitoring on", "Your hours reached the laptop", "First upload received"]
+const CHECKS = [`${APP} app connected`, "Screen Recording on", "Accessibility on", "Input Monitoring on", "Your hours reached the laptop", "First upload received"]
 const CHIPS: Record<Stage, string[]> = { slack: ["own-laptop", "who-looks"], consent: ["captures", "slack", "private"], install: ["permissions", "security"], perms: ["permissions", "pause"], extension: ["chrome"], interview: ["interview", "manager"], done: ["manager", "pause"] }
 
 function say(st: Stage, first: string): Msg[] {
   const id = `${st}-${Date.now()}`
   switch (st) {
     case "slack": return [{ id, who: "guide", text: "First, sign in with Slack so I know it's you.", card: "slack" }]
-    case "consent": return [{ id, who: "guide", text: "Before anything goes on your laptop, here's exactly what Shadow records and what it never does.", card: "consent" }]
-    case "install": return [{ id, who: "guide", text: "Thanks. Step 1 of 4: download the Shadow app for your work Mac. About 3 minutes.", card: "install" }]
+    case "consent": return [{ id, who: "guide", text: `Before anything goes on your laptop, here's exactly what ${APP} records and what it never does.`, card: "consent" }]
+    case "install": return [{ id, who: "guide", text: `Thanks. Step 1 of 4: download the ${APP} app for your work Mac. About 3 minutes.`, card: "install" }]
     case "perms": return [{ id, who: "guide", text: "Step 2 of 4: let's check it's working. I'll look at the app, the 3 Mac permissions and your hours.", card: "perms" }]
-    case "extension": return [{ id, who: "guide", text: "Step 3 of 4: add the Shadow extension to Chrome, in your work profile. This will let us know which profile we should focus on when it comes to your work, and we can avoid looking at any other profiles.", card: "extension" }]
+    case "extension": return [{ id, who: "guide", text: `Step 3 of 4: add the ${APP} extension to Chrome, in your work profile. This will let us know which profile we should focus on when it comes to your work, and we can avoid looking at any other profiles.`, card: "extension" }]
     case "interview": return [{ id, who: "guide", text: "Last step: a 5-minute interview, right here. Five questions about your work. Answer by voice or type, and you approve the summary before anyone sees it. The audio is deleted after.", card: "interview" }]
-    case "done": return [{ id, who: "guide", text: `That's everything, ${first}. Thank you. Shadow is recording your work hours, and your first findings show up after Aalpha reviews them, usually within a week.`, card: "done" }]
+    case "done": return [{ id, who: "guide", text: `That's everything, ${first}. Thank you. ${APP} is recording your work hours, and your first findings show up after Aalpha reviews them, usually within a week.`, card: "done" }]
   }
 }
 
@@ -57,7 +58,7 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
   const [listening, setListening] = useState(false)
   const [text, setText] = useState("")
   const stage: Stage = setupStage === "interview" ? "interview" : setupStage
-  const [log, setLog] = useState<Msg[]>(() => [{ id: "hi", who: "guide", text: `Hi ${first}, I'm your Shadow guide. ${owner} brought Aalpha in to take the boring, repetitive work off the team's plate. I'll walk you through setup right here. It takes about 10 minutes, and you can ask me anything along the way.` }, ...say(stage, first)])
+  const [log, setLog] = useState<Msg[]>(() => [{ id: "hi", who: "guide", text: `Hi ${first}, I'm your ${APP} guide. ${owner} brought Aalpha in to take the boring, repetitive work off the team's plate. I'll walk you through setup right here. It takes about 10 minutes, and you can ask me anything along the way.` }, ...say(stage, first)])
   const seen = useRef<string>(stage)
   const end = useRef<HTMLDivElement>(null)
 
@@ -75,7 +76,7 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
 
   const signIn = () => { you("Signed in with Slack"); seat((y) => ({ ...y, slack: { handle: me.name.toLowerCase().replace(/[^a-z]+/g, "."), display: me.name, email: `${first.toLowerCase()}@${c.slackSlug}.com`, hue: 210 } }), "signed in with Slack") }
   const agree = () => { you("I agree"); update(c.id, (x, t) => ({ ...x, seats: x.seats.map((y) => (y.id === me.id ? agreeTo(x, y, t) : y)), log: [{ date: t, text: `${me.name} agreed to ${x.consentVersion ?? "the consent form"}.` }, ...x.log] })) }
-  const install = () => { you("Downloaded and opened the app"); seat((y, t) => ({ ...y, installAt: t, permissions: false, extension: false }), "installed Shadow") }
+  const install = () => { you("Downloaded and opened the app"); seat((y, t) => ({ ...y, installAt: t, permissions: false, extension: false }), `installed ${APP}`) }
   const runCheck = () => {
     setChecking(0)
     CHECKS.forEach((_, i) => setTimeout(() => setChecking(i + 1), 420 * (i + 1)))
@@ -141,12 +142,12 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
       case "slack": return <div className={box}>{live("slack") ? <Button className="w-fit rounded-[10px] bg-[#4a154b] hover:bg-[#4a154b]/90" onClick={signIn}>Sign in with Slack</Button> : <Done t={`Signed in as @${me.slack?.handle ?? first.toLowerCase()}`} />}</div>
       case "consent": return (
         <div className={box}>
-          <span className="flex items-center gap-2 text-sm font-semibold"><ShieldCheck className="size-4 text-[var(--delta-good)]" />What Shadow records, and what it never does</span>
+          <span className="flex items-center gap-2 text-sm font-semibold"><ShieldCheck className="size-4 text-[var(--delta-good)]" />What {APP} records, and what it never does</span>
           <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-[var(--text-secondary)]">{CONSENT_POINTS.map((p) => <li key={p}>{p}</li>)}</ul>
           {hasConsent(c, me) ? <Done t="You agreed. You can withdraw it in Settings." /> : <Button className="w-fit rounded-[10px]" onClick={agree}>I agree</Button>}
         </div>
       )
-      case "install": return <div className={box}>{live("install") ? <><p className="text-sm text-[var(--text-secondary)]">When it opens, sign in with Slack and allow the 3 permissions it asks for: Screen Recording, Accessibility and Input Monitoring.</p><Button className="w-fit rounded-[10px]" onClick={install}><Download />Download for Mac</Button></> : <Done t="Shadow is on your Mac" />}</div>
+      case "install": return <div className={box}>{live("install") ? <><p className="text-sm text-[var(--text-secondary)]">When it opens, sign in with Slack and allow the 3 permissions it asks for: Screen Recording, Accessibility and Input Monitoring.</p><Button className="w-fit rounded-[10px]" onClick={install}><Download />Download for Mac</Button></> : <Done t={`${APP} is on your Mac`} />}</div>
       case "perms": return (
         <div className={box}>
           <ul className="flex flex-col gap-1.5 text-sm">{CHECKS.map((x, i) => { const ok = !live("perms") || checking > i; return <li key={x} className="flex items-center gap-2">{ok ? <CheckCircle2 className="size-4 text-[var(--status-good)]" /> : checking === i ? <Loader2 className="size-4 animate-spin text-[var(--text-muted)]" /> : <Circle className="size-4 text-[var(--text-muted)]" />}{x}</li> })}</ul>
@@ -180,7 +181,7 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
       )
       case "done": return (
         <div className={box}>
-          <p className="text-sm text-[var(--text-secondary)]">In your space you&apos;ll see what Shadow finds in your work, and you can check each finding, change your allowlist, set your hours and see exactly what your manager sees. I&apos;ll show you around.</p>
+          <p className="text-sm text-[var(--text-secondary)]">In your space you&apos;ll see what {APP} finds in your work, and you can check each finding, change your allowlist, set your hours and see exactly what your manager sees. I&apos;ll show you around.</p>
           <Button className="w-fit rounded-[10px]" onClick={openSpace}>Open my space</Button>
         </div>
       )
@@ -199,8 +200,8 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
 
       <header className="relative z-10 flex flex-wrap items-center gap-3 px-5 py-4">
         <span aria-hidden className="grid size-8 place-items-center rounded-[10px] bg-[var(--graphite)]"><span className="size-2.5 rounded-full bg-[var(--bronze-dark)]" /></span>
-        <span className="flex flex-col leading-tight"><span className="text-sm font-semibold">Shadow setup</span><span className="text-xs text-[var(--text-muted)]">{c.name} · {me.name}</span></span>
-        <span className="ml-auto rounded-full bg-white/70 px-2.5 py-1 text-xs text-[var(--text-muted)]">Prototype: what a team member sees from the invite link</span>
+        <span className="flex flex-col leading-tight"><span className="text-sm font-semibold">{APP} setup</span><span className="text-xs text-[var(--text-muted)]">{c.name} · {me.name}</span></span>
+        <span className="ml-auto rounded-full bg-white/70 px-2.5 py-1 text-xs text-[var(--text-muted)]">{IS_DEMO ? "Sample: what a new team member sees from their invite link" : "Prototype: what a team member sees from the invite link"}</span>
         <Link href={`/client/${c.id}?role=Member`} className="text-xs text-[var(--text-muted)] underline">Skip to the portal</Link>
       </header>
 

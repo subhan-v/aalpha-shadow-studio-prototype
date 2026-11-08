@@ -13,6 +13,7 @@ import { newRequest } from "@/lib/requests"
 import { useStore } from "@/lib/store"
 import type { Client, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 
 // An agent covers a workflow when they share a meaningful word ("Rank tracking roundup").
@@ -43,7 +44,7 @@ export function MyWorkflows({ c, me }: { c: Client; me: Seat }) {
   if (!p.workflows.length) return <Section title="Your repeat work" sub="From your own work"><p className="text-sm text-[var(--text-muted)]">Nothing repeatable found in your role yet. It shows up after your first week of data.</p></Section>
   return (
     <div data-tour="myflows" className="flex flex-col gap-4">
-      <p className="text-sm text-[var(--text-secondary)]">The repeat work Shadow found in your role. Agents are taking {p.backWk} hours a week of it off your plate. Is each one right? Your answer goes to Subhan and fixes the finding before anyone acts on it.</p>
+      <p className="text-sm text-[var(--text-secondary)]">The repeat work {APP} found in your role. Agents are taking {p.backWk} hours a week of it off your plate. Is each one right? Your answer goes to Subhan and fixes the finding before anyone acts on it.</p>
       {p.workflows.map((w) => {
         const sop = c.sops.find((x) => x.workflowId === w.id && x.status === "published")
         const agent = matched.get(w.id)

@@ -20,6 +20,7 @@ import { interviewSetFor, questionsFor, SET_LABEL } from "@/lib/setup"
 import { useStore } from "@/lib/store"
 import type { Client, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 const ICON: Record<CardKind, typeof Target> = { Goal: Target, Workflow: WfIcon, "Pain point": Lightbulb, "Hand-off": Hand, "Never automate": Ban, "Role note": UserRound }
 const TONE: Record<CardKind, string> = { Goal: "text-[var(--bronze)]", Workflow: "text-[#2a78d6]", "Pain point": "text-[var(--watch-fg)]", "Hand-off": "text-[var(--delta-good)]", "Never automate": "text-[var(--delta-bad)]", "Role note": "text-[#6250d6]" }
@@ -113,7 +114,7 @@ export function InterviewView({ c, me, owner = false }: { c: Client; me: Seat; o
                   {(k.tools || wf) && (
                     <div className="ml-6 flex flex-wrap items-center gap-1.5">
                       {k.tools?.map((t) => <ToolChip key={t} t={t} compact />)}
-                      {wf && k.kind === "Workflow" && <span className="text-xs text-[var(--text-secondary)]">Shadow captured {Math.round(wf.hoursWk * WK_TO_MO)} h a month of this</span>}
+                      {wf && k.kind === "Workflow" && <span className="text-xs text-[var(--text-secondary)]">{APP} captured {Math.round(wf.hoursWk * WK_TO_MO)} h a month of this</span>}
                     </div>
                   )}
                   <span className="ml-6 text-xs italic text-[var(--text-muted)]">&ldquo;{k.quote}&rdquo;</span>

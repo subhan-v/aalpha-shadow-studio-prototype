@@ -18,6 +18,7 @@ import { recordingNow } from "@/lib/recording"
 import { scopedView } from "@/lib/teams"
 import type { Client, Pilot, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 const TIER_C = { H: "#1c5cab", M: "#3987e5", L: "#86b6ef" }
 const MIX_C = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#6250d6", "#c3c8d2"]
@@ -82,7 +83,7 @@ export function HomeTab({ c: full, go, rates = true, people = true, scope }: { c
         <RowsSheet title="Opportunity hours a month" description="Every published opportunity" columns={oppCols} rows={oppRows}>
           <Kpi icon={<Clock />} hue="#2a78d6" label="Opportunity hours a month" value={Math.round(st.total * share)} note={<span className="mt-1 flex h-1.5 w-full gap-0.5 overflow-hidden rounded-full">{(["H", "M", "L"] as const).map((k) => <span key={k} style={{ width: `${st.total ? (st[k] / st.total) * 100 : 0}%`, background: TIER_C[k] }} />)}</span>} />
         </RowsSheet>
-        <RowsSheet title="Activity observed" description="Hours of work Shadow received, per day" columns={[{ key: "d", label: "Day" }, { key: "h", label: "Hours", right: true }]} rows={st.daily.map((d) => ({ d: fmt(d.d), h: Math.round(d.h * share).toLocaleString() }))}>
+        <RowsSheet title="Activity observed" description={`Hours of work ${APP} received, per day`} columns={[{ key: "d", label: "Day" }, { key: "h", label: "Hours", right: true }]} rows={st.daily.map((d) => ({ d: fmt(d.d), h: Math.round(d.h * share).toLocaleString() }))}>
           <Kpi icon={<Radio />} hue="#6250d6" label="Activity observed" value={`${Math.round(st.observed * share).toLocaleString()} h`} note={`${st.workflows} workflows · last 14 days`} />
         </RowsSheet>
         <RowsSheet title="People recording" columns={[{ key: "n", label: "Person" }, { key: "r", label: "Role" }, { key: "s", label: "Status" }]} rows={rec.rows.map((x) => ({ n: x.s.name, r: x.s.role, s: x.status }))}>
@@ -90,7 +91,7 @@ export function HomeTab({ c: full, go, rates = true, people = true, scope }: { c
         </RowsSheet>
       </div>
 
-      {(dayN(c, t) ?? 0) >= 14 && <Section title="Before and after" sub={scope ? "Company-wide · before Shadow, the last 30 days, and now" : "Before Shadow, the last 30 days, and now"}>
+      {(dayN(c, t) ?? 0) >= 14 && <Section title="Before and after" sub={scope ? `Company-wide · before ${APP}, the last 30 days, and now` : `Before ${APP}, the last 30 days, and now`}>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {ba.map((m) => {
             const improved = m.better === "down" ? m.now < m.before : m.now > m.before
