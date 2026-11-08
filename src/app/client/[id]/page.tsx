@@ -128,11 +128,11 @@ function ClientApp() {
         <div role="group" aria-label="Role" className="flex rounded-[10px] bg-white/8 p-0.5">
           {(["Owner", "Manager", "Member"] as Role[]).map((r) => <button key={r} aria-pressed={role === r} onClick={() => setRole(r)} className={cn("h-7 rounded-[8px] px-2.5 text-xs", role === r ? "bg-[var(--bronze-dark)] font-medium text-[var(--night)]" : "text-[#aaa69f] hover:text-white")}>{r}</button>)}
         </div>
-        <span className="text-xs text-[#929088]">Read only · logged in Settings</span>
+        {!IS_DEMO && <span className="text-xs text-[#929088]">Read only · logged in Settings</span>}
         {c.demo && <span className="rounded-full bg-[var(--bronze-dark)]/20 px-2.5 py-0.5 text-xs font-medium text-[var(--bronze-dark)]">Sample agency · made-up numbers</span>}
         <button onClick={() => (touring ? exitTour() : tourTo(Math.min(savedStop(c.id), tourStops(c, s.today).length - 1)))} aria-pressed={touring} className={cn("ml-auto inline-flex h-8 items-center gap-1.5 rounded-[10px] px-3 text-xs font-medium", touring ? "bg-[var(--bronze-dark)] text-[var(--night)]" : "border border-white/15 hover:bg-white/8")}><Presentation className="size-3.5" />{touring ? "Exit demo" : "Present"}</button>
         {IS_DEMO
-          ? <Link href={`/join/${c.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-xs hover:bg-white/8">See member onboarding</Link>
+          ? <Link href="/join/mira" className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-xs hover:bg-white/8">See member onboarding</Link>
           : <Link href={`/clients/${c.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-xs hover:bg-white/8"><ArrowLeft className="size-3.5" />Back to Studio</Link>}
       </div>
 
