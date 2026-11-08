@@ -1,3 +1,4 @@
+import { APP } from "@/lib/flags"
 // The questions people ask before they install, from the first beta teams (Trivium, Oct 2026),
 // with the answers Subhan approved. Short on purpose: each one fits in a Slack reply.
 // Only state what Shadow does today; scheduled pause and Chrome profiles are not built yet.
@@ -14,8 +15,8 @@ export const FAQ: Faq[] = [
   { id: "pause", asked: 3, q: "Can I pause it outside work hours?",
     a: "Yes. Set your own hours and it switches off on its own outside them, and you can pause any time from the menu bar." },
   { id: "chrome", asked: 2, q: "Can I keep my personal Chrome profile out?",
-    a: "Yes. The Shadow extension goes on your work profile, so we know which profile to focus on for your work and avoid looking at any other profiles." },
-  { id: "slack", asked: 2, q: "Which Slack messages does Shadow read?",
+    a: `Yes. The ${APP} extension goes on your work profile, so we know which profile to focus on for your work and avoid looking at any other profiles.` },
+  { id: "slack", asked: 2, q: `Which Slack messages does ${APP} read?`,
     a: "Public channels, and the private channels your workspace admin is in. Never direct messages." },
   { id: "permissions", asked: 2, q: "What permissions does it need?",
     a: "Three Mac permissions: Screen Recording (screenshots), Accessibility (which app is active) and Input Monitoring (clicks)." },

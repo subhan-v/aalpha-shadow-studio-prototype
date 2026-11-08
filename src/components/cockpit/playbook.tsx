@@ -15,6 +15,7 @@ import { fmt } from "@/lib/dates"
 import { useStore } from "@/lib/store"
 import type { Client, Sop, SopStep, Tool } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 const TOOLS = Object.keys(TOOL_NAME) as Tool[]
 
@@ -77,7 +78,7 @@ export function PlaybookTab({ c }: { c: Client }) {
           </div>
 
           {mode === "preview" ? <SopView sop={sop} wf={c.workflows.find((w) => w.id === sop.workflowId)} /> : (
-            <Section title="Edit SOP" sub="Steps come from what Shadow saw. Tidy the wording, keep one action per step.">
+            <Section title="Edit SOP" sub={`Steps come from what ${APP} saw. Tidy the wording, keep one action per step.`}>
               <div className="mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
                 <label className="flex flex-col gap-1 text-xs text-[var(--text-muted)]">Title<Input value={sop.title} onChange={(e) => setSop({ title: e.target.value })} className="h-9 rounded-[10px] text-sm" /></label>
                 <label className="flex flex-col gap-1 text-xs text-[var(--text-muted)]">Owner on the client&apos;s team<Input value={sop.owner} onChange={(e) => setSop({ owner: e.target.value })} className="h-9 rounded-[10px] text-sm" /></label>

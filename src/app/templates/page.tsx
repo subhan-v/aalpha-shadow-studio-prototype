@@ -5,6 +5,7 @@ import { ToolChip } from "@/components/sop-view"
 import { CATS } from "@/lib/client-data"
 import { makeGoals } from "@/lib/delivery"
 import type { Tool } from "@/lib/types"
+import { APP } from "@/lib/flags"
 
 const SOPS: [string, Tool[], number][] = [
   ["Build the monthly client report", ["ga", "hubspot", "sheets", "slides", "slack", "gmail"], 9],
@@ -27,7 +28,7 @@ export default function Templates() {
         <Section title="Goals" sub="Drafted from the kickoff call">
           {makeGoals({ id: "t" }, "draft").map((g) => <div key={g.id} className="flex items-center justify-between gap-3 border-t py-2.5 first:border-t-0"><span className="text-sm font-medium">{g.title}</span><span className="text-xs text-[var(--text-muted)]">{g.target} h/wk</span></div>)}
         </Section>
-        <Section title="SOPs" sub="Step banks Shadow fills from what it sees">
+        <Section title="SOPs" sub={`Step banks ${APP} fills from what it sees`}>
           {SOPS.map(([n, tools, steps]) => <div key={n} className="flex flex-col gap-1.5 border-t py-2.5 first:border-t-0"><span className="flex items-center justify-between text-sm font-medium">{n}<span className="text-xs font-normal text-[var(--text-muted)]">{steps} steps</span></span><span className="flex flex-wrap gap-1">{tools.map((t) => <ToolChip key={t} t={t} compact />)}</span></div>)}
         </Section>
         <Section title="Reports" sub="Drafted from data, approved before sending">

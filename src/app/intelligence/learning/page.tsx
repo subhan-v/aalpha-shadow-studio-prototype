@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { addDays, fmt, hash } from "@/lib/dates"
 import { dayN, hoursBack, hoursFound, projected90 } from "@/lib/engine"
 import { useStore } from "@/lib/store"
+import { APP } from "@/lib/flags"
 
 const TASKS: [string, number, number][] = [
   ["Message type label (ask, answer, approval…)", 300, 85],
@@ -43,7 +44,7 @@ export default function LearningPage() {
 
   return (
     <>
-      <PageHeader title="Learning" sub="Is Shadow getting more accurate? AI checks, number checks and outcomes. A failed gate blocks the change or hides the number." />
+      <PageHeader title="Learning" sub={`Is ${APP} getting more accurate? AI checks, number checks and outcomes. A failed gate blocks the change or hides the number.`} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
         <Kpi label="AI checks passing" value={`${models.filter((m) => m.pass).length}/${models.length}`} t={models.some((m) => !m.pass) ? "warn" : undefined} />
         <Kpi label="Number checks passing" value={`${checks.filter((c) => c[1]).length}/${checks.length}`} t={checks.some((c) => !c[1]) ? "warn" : undefined} />

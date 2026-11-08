@@ -17,6 +17,7 @@ import { openHealth } from "@/lib/agent-health"
 import { retention } from "@/lib/health"
 import { LAB } from "@/lib/insights"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname()
@@ -81,7 +82,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <span className="size-2.5 rounded-full bg-[var(--bronze-dark)]" />
           </span>
           <div className="leading-tight">
-            <div className="text-[15px] font-semibold tracking-[-0.01em]">Shadow Studio</div>
+            <div className="text-[15px] font-semibold tracking-[-0.01em]">{APP} Studio</div>
             <div className="text-xs text-[#929088]">Aalpha only</div>
           </div>
         </div>

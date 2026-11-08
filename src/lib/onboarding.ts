@@ -10,6 +10,7 @@ import { faq } from "./faq"
 import { slackMessages } from "./slack"
 import { churned } from "./renewal"
 import type { Client, ISODate, JourneyStage, Seat, SeqStep, State } from "./types"
+import { APP } from "@/lib/flags"
 
 export const STEPS: { id: JourneyStage; label: string; short: string }[] = [
   { id: "invite", label: "Accept the invite", short: "Invited" },
@@ -26,31 +27,31 @@ export const STEPS: { id: JourneyStage; label: string; short: string }[] = [
 export const SEQUENCE: SeqStep[] = [
   // The invite (owner direction 2026-10-30): warm, why it helps them, the link, then every disclosure.
   { id: "inv-hello", stage: "invite", after: 0, name: "Invite with disclosures", channel: "Slack DM", from: "Sender", mode: "Auto", on: true,
-    body: "Hi {first}, I'm {sender} from Aalpha. {owner} brought us in to take the repetitive busywork off the team's plate. I'd like your help, so we can let you work on the things that matter and not the work that is boring and repetitive.\n\nClick here to sign in with Slack and follow the steps. It'll take 10 minutes: {link}\nWant to see it first? 2-minute video: {video}\n\nBy the way, Shadow tracks a few things to help us find patterns: screenshots at intervals, plus the app, site and clicks, only for the work apps and sites on your allowlist, and what you post in public Slack channels and the private channels {owner} is in. We're not here to monitor you, and it isn't used for decisions about your job. All we care about is finding the work you do today and how to help you do it better.\n\nIt never records video, never uses your mic or camera, and never reads your direct messages. You can pause any time, set your own hours, and keep apps and sites out of it. Everything stays on your computer first and gets filtered there, so private info is redacted before anything comes to us.\n\nAny questions, just reply here. I read every one." },
+    body: `Hi {first}, I'm {sender} from Aalpha. {owner} brought us in to take the repetitive busywork off the team's plate. I'd like your help, so we can let you work on the things that matter and not the work that is boring and repetitive.\n\nClick here to sign in with Slack and follow the steps. It'll take 10 minutes: {link}\nWant to see it first? 2-minute video: {video}\n\nBy the way, ${APP} tracks a few things to help us find patterns: screenshots at intervals, plus the app, site and clicks, only for the work apps and sites on your allowlist, and what you post in public Slack channels and the private channels {owner} is in. We're not here to monitor you, and it isn't used for decisions about your job. All we care about is finding the work you do today and how to help you do it better.\n\nIt never records video, never uses your mic or camera, and never reads your direct messages. You can pause any time, set your own hours, and keep apps and sites out of it. Everything stays on your computer first and gets filtered there, so private info is redacted before anything comes to us.\n\nAny questions, just reply here. I read every one.` },
   { id: "inv-owner-dm", stage: "invite", after: 24, name: "Note from the client's owner", channel: "Slack DM", from: "Client owner", mode: "Approve", on: true,
-    body: "Hey {first}, set up Shadow when you get a sec: {link}. It's how we find the busywork to hand to AI. You pick which apps it tracks." },
+    body: `Hey {first}, set up ${APP} when you get a sec: {link}. It's how we find the busywork to hand to AI. You pick which apps it tracks.` },
   { id: "inv-nudge", stage: "invite", after: 72, name: "Quick check-in", channel: "Slack DM", from: "Sender", mode: "Auto", on: true,
-    body: "Hi {first}, just checking my note reached you. Whenever you have 10 minutes: {link}\nIf anything about Shadow worries you, ask me here first. Happy to answer." },
+    body: `Hi {first}, just checking my note reached you. Whenever you have 10 minutes: {link}\nIf anything about ${APP} worries you, ask me here first. Happy to answer.` },
   { id: "inv-owner-list", stage: "invite", after: 96, name: "Tell the owner who hasn't joined", channel: "Owner DM", from: "Sender", mode: "Auto", on: true,
-    body: "Hi {owner}, {count} haven't joined Shadow yet: {names}. A quick word from you usually does it." },
+    body: `Hi {owner}, {count} haven't joined ${APP} yet: {names}. A quick word from you usually does it.` },
   { id: "inv-call", stage: "invite", after: 168, name: "A week without joining: reach out", channel: "Call", from: "Sender", mode: "Manual", on: true,
-    body: "Hi {first}, want to set up Shadow together? 10 minutes, and I'll answer anything on your mind.",
+    body: `Hi {first}, want to set up ${APP} together? 10 minutes, and I'll answer anything on your mind.`,
     howTo: ["Send the message below in Slack.", "Ask what's holding them back. Usually it's their own laptop: use Common questions.", "No answer in a day? Ask the owner who can help."] },
 
   { id: "ins-guide", stage: "install", after: 1, name: "Signed in, app next", channel: "Slack DM", from: "Sender", mode: "Auto", on: true,
-    body: "Nice, you're signed in, {first}. Next is the Shadow app for your Mac: {link}\nThe guide walks you through it. About 3 minutes." },
+    body: `Nice, you're signed in, {first}. Next is the ${APP} app for your Mac: {link}\nThe guide walks you through it. About 3 minutes.` },
   { id: "ins-dm", stage: "install", after: 24, name: "Anything in the way?", channel: "Slack DM", from: "Sender", mode: "Auto", on: true,
     body: "Hi {first}, the app isn't on your Mac yet. Anything in the way? Reply here and I'll sort it out with you." },
   { id: "ins-owner", stage: "install", after: 48, name: "Tell the owner who hasn't installed", channel: "Owner DM", from: "Sender", mode: "Auto", on: true,
     body: "Hi {owner}, {count} joined but haven't installed: {names}. Results start at install, so this is the one to push." },
   { id: "ins-call", stage: "install", after: 72, name: "10-minute install call", channel: "Call", from: "Sender", mode: "Manual", on: true,
-    body: "Hi {first}, can we grab 10 minutes today? We'll set up Shadow together and pick what it tracks.",
+    body: `Hi {first}, can we grab 10 minutes today? We'll set up ${APP} together and pick what it tracks.`,
     howTo: ["Book 10 minutes.", "Share the install link before the call.", "Download, sign in with Slack, then the 3 Mac permissions.", "Set their allowlist together if it's their own laptop.", "Stay on until Activity shows their first upload."] },
 
   { id: "per-fix", stage: "permissions", after: 2, name: "Turn on permissions", channel: "Slack DM", from: "Sender", mode: "Auto", on: true,
-    body: "Almost there, {first}. The check says a Mac permission is still off. In System Settings > Privacy & Security, switch Shadow on under Screen Recording, Accessibility and Input Monitoring, then run the check again." },
+    body: `Almost there, {first}. The check says a Mac permission is still off. In System Settings > Privacy & Security, switch ${APP} on under Screen Recording, Accessibility and Input Monitoring, then run the check again.` },
   { id: "per-call", stage: "permissions", after: 24, name: "Fix permissions together", channel: "Call", from: "Sender", mode: "Manual", on: true,
-    body: "Hi {first}, Shadow's installed but can't record yet. 5 minutes to switch on the permissions together?",
+    body: `Hi {first}, ${APP}'s installed but can't record yet. 5 minutes to switch on the permissions together?`,
     howTo: ["Check Activity for which permission is missing.", "On a company laptop, IT may need to allow it.", "Mark done once the device reports the permissions."] },
 
   // New stages (v19.4): people stuck on the Chrome extension or the interview get their own note.
@@ -65,9 +66,9 @@ export const SEQUENCE: SeqStep[] = [
   { id: "int-owner", stage: "interview", after: 120, name: "Tell the owner who hasn't done the interview", channel: "Owner DM", from: "Sender", mode: "Auto", on: true,
     body: "Hi {owner}, {count} haven't done their 5-minute interview yet: {names}. A quick nudge from you helps." },
   { id: "rec-nudge", stage: "recording", after: 4, name: "Gone quiet", channel: "Slack DM", from: "Sender", mode: "Auto", on: true,
-    body: "Hi {first}, Shadow went quiet on your Mac. Paused, or closed by accident? Reopen it from the menu bar when you're back on work. No rush." },
+    body: `Hi {first}, ${APP} went quiet on your Mac. Paused, or closed by accident? Reopen it from the menu bar when you're back on work. No rush.` },
   { id: "rec-check", stage: "recording", after: 24, name: "Check in", channel: "Call", from: "Sender", mode: "Manual", on: true,
-    body: "Hi {first}, Shadow's been quiet since {since}. New laptop, or paused on purpose?",
+    body: `Hi {first}, ${APP}'s been quiet since {since}. New laptop, or paused on purpose?`,
     howTo: ["Check if they're on leave or changed laptops.", "If paused on purpose, ask the owner whether to leave them out.", "Mark done once data is flowing."] },
 
   { id: "con-reply", stage: "concern", after: 0, name: "Answer a question in Slack", channel: "Slack thread", from: "Sender", mode: "Approve", on: true,

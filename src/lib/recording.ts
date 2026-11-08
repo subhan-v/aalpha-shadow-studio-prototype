@@ -8,6 +8,7 @@ import { installed, silent } from "./engine"
 import { journey } from "./onboarding"
 import { hasConsent } from "./consent"
 import type { Client, ISODate, Seat, Send, State } from "./types"
+import { APP } from "@/lib/flags"
 
 // Standard work hours, for measuring someone whose own hours are 24/7.
 const WORK = { days: [1, 2, 3, 4, 5], start: "09:00", end: "17:00" }
@@ -73,12 +74,12 @@ const first = (s: Seat) => s.name.split(" ")[0]
 export function nudgeText(st: RecStatus, s: Seat, since: ISODate | null) {
   const when = since ? fmt(since) : "last week"
   return {
-    "Invited, not joined": `Hi ${first(s)}, can you set up Shadow today? It takes about 3 minutes and the link is in your email.`,
-    "Not installed": `Hi ${first(s)}, Shadow isn't on your Mac yet. The link is in your email and it takes 3 minutes.`,
-    "No consent": `Hi ${first(s)}, please read and agree to the Shadow consent form in your Get started. Nothing is recorded until you do.`,
-    "Permissions missing": `Hi ${first(s)}, Shadow needs its 3 Mac permissions: Screen Recording, Accessibility and Input Monitoring. System Settings > Privacy & Security.`,
-    "Paused": `Hi ${first(s)}, Shadow has been paused since ${when}. Can you turn it back on when you're on work?`,
-    "Quiet 3+ days": `Hi ${first(s)}, Shadow has been quiet on your Mac since ${when}. Can you reopen it from the menu bar?`,
+    "Invited, not joined": `Hi ${first(s)}, can you set up ${APP} today? It takes about 3 minutes and the link is in your email.`,
+    "Not installed": `Hi ${first(s)}, ${APP} isn't on your Mac yet. The link is in your email and it takes 3 minutes.`,
+    "No consent": `Hi ${first(s)}, please read and agree to the ${APP} consent form in your Get started. Nothing is recorded until you do.`,
+    "Permissions missing": `Hi ${first(s)}, ${APP} needs its 3 Mac permissions: Screen Recording, Accessibility and Input Monitoring. System Settings > Privacy & Security.`,
+    "Paused": `Hi ${first(s)}, ${APP} has been paused since ${when}. Can you turn it back on when you're on work?`,
+    "Quiet 3+ days": `Hi ${first(s)}, ${APP} has been quiet on your Mac since ${when}. Can you reopen it from the menu bar?`,
     Recording: "", "On leave": "", Excluded: "",
   }[st]
 }

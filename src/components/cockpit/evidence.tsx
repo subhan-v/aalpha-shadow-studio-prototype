@@ -13,6 +13,7 @@ import { dayN } from "@/lib/engine"
 import { useStore } from "@/lib/store"
 import type { Client } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 export function EvidenceTab({ c }: { c: Client }) {
   const { s } = useStore()
@@ -54,7 +55,7 @@ export function EvidenceTab({ c }: { c: Client }) {
                 <div className="mb-3 flex flex-col gap-2 rounded-xl bg-[var(--surface-2)] p-3">
                   <div className="flex flex-wrap gap-1">{r.tools.map((t) => <ToolChip key={t} t={t} compact />)}</div>
                   <p className="text-xs text-[var(--text-secondary)]"><b className="text-[var(--text-primary)]">Why it was grouped:</b> {r.why}</p>
-                  <p className="text-xs text-[var(--text-muted)]">Shadow named the workflow: {r.w.rawName}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{APP} named the workflow: {r.w.rawName}</p>
                 </div>
               )}
             </div>

@@ -7,6 +7,7 @@ import { CommonQuestions, Funnel, Outbox, SequenceEditor } from "@/components/au
 import { decisions, outbox, people } from "@/lib/onboarding"
 import { useStore } from "@/lib/store"
 import { CheckCircle2, Clock, MailWarning, UserCheck } from "lucide-react"
+import { APP } from "@/lib/flags"
 
 export default function Onboarding() {
   const { s } = useStore()
@@ -18,7 +19,7 @@ export default function Onboarding() {
     <>
       <PageHeader title="Onboarding" sub="Every person on every client, from invite to live. The autopilot sends the nudges; you approve the personal ones and do the calls." />
       <div className="rounded-2xl border border-[var(--watch-bg)] bg-[var(--watch-bg)]/40 px-4 py-3 text-sm">
-        <b>What the beta taught us.</b> People hold off installing until they know what Shadow sees on their own laptop: what it captures, Chrome profiles, pausing, permissions. The autopilot answers those up front, follows up as Subhan, and makes sure nobody is stuck for more than 3 days without a person reaching out.
+        <b>What the beta taught us.</b> People hold off installing until they know what {APP} sees on their own laptop: what it captures, Chrome profiles, pausing, permissions. The autopilot answers those up front, follows up as Subhan, and makes sure nobody is stuck for more than 3 days without a person reaching out.
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3">
         <Kpi icon={<CheckCircle2 />} hue="#1baf7a" label="Live" value={`${all.filter((p) => p.stage === "live").length}/${all.length}`} note="Recording for 3+ days" />

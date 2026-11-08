@@ -17,6 +17,7 @@ import { act, decisions, effectiveness, funnel, outbox, people, senderName, STEP
 import { useStore } from "@/lib/store"
 import type { Client, SeqStep } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 const CH_ICON = { Email: Mail, "Slack DM": MessageSquare, "Slack thread": MessageSquare, "Owner DM": UserRound, Call: Phone }
 const STAGE_C = ["#86b6ef", "#5598e7", "#3987e5", "#2a78d6", "#1baf7a"]
@@ -188,7 +189,7 @@ export function SequenceEditor() {
   return (
     <div className="flex flex-col gap-4">
       <Section title="Who the messages come from" sub="Every message to a client comes from Subhan (owner rule, 2026-10-30)">
-        <p className="text-sm text-[var(--text-secondary)]">Requests, nudges, reports and customer success all go out as Subhan, CEO. Anyone on the Aalpha team can draft or queue a message here; the client always sees Subhan as the sender, never a specialist, &ldquo;Shadow&rdquo; or a support inbox.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Requests, nudges, reports and customer success all go out as Subhan, CEO. Anyone on the Aalpha team can draft or queue a message here; the client always sees Subhan as the sender, never a specialist, &ldquo;{APP}&rdquo; or a support inbox.</p>
         <p className="mt-3 text-xs text-[var(--text-muted)]">The note from the client&apos;s own owner stays in their name and always waits for a click.</p>
       </Section>
       {groups.map((g) => (

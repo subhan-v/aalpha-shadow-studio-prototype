@@ -7,6 +7,7 @@
 import { addDays, diffDays } from "./dates"
 import { dateOfDay, dayN } from "./engine"
 import type { ChurnReason, Client, ISODate, Renewal } from "./types"
+import { APP } from "@/lib/flags"
 
 export const CHURN_REASONS: ChurnReason[] = ["Didn't see enough value", "Price", "Budget cut", "Doing it in-house", "Champion left", "Went with someone else", "Other"]
 
@@ -88,7 +89,7 @@ export const reopen = (c: Client, today: ISODate, by: string): Client =>
   log({ ...c, renewal: { stage: "Open", openedAt: c.renewal?.openedAt ?? today } }, today, `Renewal reopened by ${by}.`)
 
 export const offboard = (c: Client, today: ISODate): Client =>
-  log({ ...c, offboardedAt: today, seats: c.seats.map((x) => ({ ...x, away: "excluded" as const })) }, today, "Offboarded: Shadow removed from every computer and the data deletion scheduled.")
+  log({ ...c, offboardedAt: today, seats: c.seats.map((x) => ({ ...x, away: "excluded" as const })) }, today, `Offboarded: ${APP} removed from every computer and the data deletion scheduled.`)
 
 /** Sample renewal for a client already past day 90 when the prototype starts. */
 export const sampleRenewed = (c: Client, price: number): Renewal => {

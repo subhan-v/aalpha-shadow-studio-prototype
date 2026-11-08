@@ -11,6 +11,7 @@ import { reviewQueue, visibleWorkflows } from "@/lib/engine"
 import { useStore } from "@/lib/store"
 import type { Category, Client, Tier, Workflow } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { APP } from "@/lib/flags"
 
 const CATS: Category[] = ["Reporting", "Paid media", "Ops and admin", "Client delivery", "Creative", "Sales"]
 const TIER: Record<Tier, string> = { H: "High", M: "Medium", L: "Low" }
@@ -26,9 +27,9 @@ export function ReviewTab({ c }: { c: Client }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Section title="Review queue" sub="New workflows Shadow found. Rename in plain words, set the category and return, then publish. Hide anything private."
+      <Section title="Review queue" sub={`New workflows ${APP} found. Rename in plain words, set the category and return, then publish. Hide anything private.`}
         right={queue.length > 1 ? <Button size="sm" className="rounded-[10px]" onClick={() => update(c.id, (x, t) => ({ ...x, workflows: x.workflows.map((w) => (queue.some((q) => q.id === w.id) ? { ...w, review: "published" } : w)), log: [{ date: t, text: `Published ${queue.length} workflows to the client.` }, ...x.log] }))}>Publish all {queue.length}</Button> : null}>
-        {queue.length === 0 && <p className="py-4 text-sm text-[var(--text-muted)]">Queue is empty. New workflows appear here as Shadow finds them.</p>}
+        {queue.length === 0 && <p className="py-4 text-sm text-[var(--text-muted)]">Queue is empty. New workflows appear here as {APP} finds them.</p>}
         <div className="flex flex-col gap-3">
           {queue.map((w) => <ReviewCard key={w.id} w={w} all={c.workflows} set={set} />)}
         </div>
@@ -68,7 +69,7 @@ function ReviewCard({ w, all, set }: { w: Workflow; all: Workflow[]; set: (id: s
   return (
     <div className="flex flex-col gap-3 rounded-2xl border p-4">
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-[var(--text-muted)]">Shadow named it</span>
+        <span className="text-xs text-[var(--text-muted)]">{APP} named it</span>
         <span className="text-sm text-[var(--text-secondary)]">{w.rawName}</span>
       </div>
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_auto]">

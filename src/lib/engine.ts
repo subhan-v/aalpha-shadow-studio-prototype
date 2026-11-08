@@ -8,6 +8,7 @@ import { hasConsent } from "./consent"
 import { canMoney } from "./access"
 import { churned, day91, offboard, openRenewal, overdueDays, past90, phase, renewalStage, sendProposal } from "./renewal"
 import type { Action, Agent, AgentStatus, Alert, Client, ISODate, Req, Seat, Severity, State, Workflow } from "./types"
+import { APP } from "@/lib/flags"
 
 export const TARGET = 40 // hours a week, both guarantees
 
@@ -157,10 +158,10 @@ export function requirements(c: Client, today: ISODate): Req[] {
 
   const activeShare = st.installed ? st.active / st.installed : 0
   const r7: Req = !started || st.installed === 0
-    ? { n: 7, name: "Shadow active on the whole team in every capture window", status: "pending", detail: "After install", source: "Device data" }
+    ? { n: 7, name: `${APP} active on the whole team in every capture window`, status: "pending", detail: "After install", source: "Device data" }
     : activeShare >= 0.95
-      ? { n: 7, name: "Shadow active on the whole team in every capture window", status: "met", detail: `${Math.round(activeShare * 100)}% active`, source: "Device data" }
-      : { n: 7, name: "Shadow active on the whole team in every capture window", status: "at_risk", detail: `${Math.round(activeShare * 100)}% active · ${st.silent} silent`, source: "Device data" }
+      ? { n: 7, name: `${APP} active on the whole team in every capture window`, status: "met", detail: `${Math.round(activeShare * 100)}% active`, source: "Device data" }
+      : { n: 7, name: `${APP} active on the whole team in every capture window`, status: "at_risk", detail: `${Math.round(activeShare * 100)}% active · ${st.silent} silent`, source: "Device data" }
 
   return [r1, r2, r3, r4, r5, r6, r7]
 }
@@ -244,7 +245,7 @@ export function actions(c: Client, today: ISODate): Action[] {
 
   // A lost client only needs offboarding.
   if (churned(c, today)) {
-    if (!c.offboardedAt) push("offboard", "High", "Offboard the client", "Remove Shadow from every computer and schedule the data deletion.", today, "Mark offboarded", (x, t) => offboard(x, t))
+    if (!c.offboardedAt) push("offboard", "High", "Offboard the client", `Remove ${APP} from every computer and schedule the data deletion.`, today, "Mark offboarded", (x, t) => offboard(x, t))
     return a
   }
 

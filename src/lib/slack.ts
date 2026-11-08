@@ -7,6 +7,7 @@ import { addDays, diffDays, hash } from "./dates"
 import { dayN, installed } from "./engine"
 import { faq } from "./faq"
 import type { Client, ISODate, State } from "./types"
+import { APP } from "@/lib/flags"
 
 export type Topic = "Privacy" | "Install" | "Question" | "Praise" | "Problem" | "Thanks"
 export type SlackMsg = { id: string; clientId: string; channel: string; at: ISODate; time: string; from: string; seatId: string | null; text: string; topic: Topic; score: number; needsReply: boolean; answeredBy: string | null; faq?: string }
@@ -19,7 +20,7 @@ const LINES: { topic: Topic; score: number; text: string; reply: boolean; early:
   { topic: "Privacy", score: -0.3, early: true, reply: true, faq: "pause", text: "Can I pause it outside work hours?" },
   { topic: "Install", score: -0.2, early: true, reply: true, faq: "permissions", text: "What system permissions does it need exactly?" },
   { topic: "Question", score: 0, early: true, reply: true, faq: "guide", text: "Is there a user guide or docs I can read first?" },
-  { topic: "Install", score: -0.4, early: true, reply: true, text: "Shadow closes every time I restart my Mac" },
+  { topic: "Install", score: -0.4, early: true, reply: true, text: `${APP} closes every time I restart my Mac` },
   { topic: "Question", score: 0, early: false, reply: true, text: "Where do I see my own report?" },
   { topic: "Praise", score: 0.8, early: false, reply: false, text: "This morning's report was actually useful. Didn't realise I spend 6 hours a week on status updates" },
   { topic: "Praise", score: 0.9, early: false, reply: false, text: "The client report agent saved me an hour today" },

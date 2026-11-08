@@ -9,6 +9,7 @@ import { CAT_FN, suggestFunction } from "./teams"
 import { bigChannelList, CATALOG, interviewSetFor } from "./setup"
 import { hash } from "./dates"
 import type { Agent, Category, Client, ISODate, Report, Seat, Tier, Tool, Workflow } from "./types"
+import { APP } from "@/lib/flags"
 
 const PEOPLE: [name: string, role: string][] = [
   ["Dana Whitfield", "CEO"], ["Marcus Reed", "COO"], ["Priya Shah", "Account director"],
@@ -135,7 +136,7 @@ export function demoClient(t: ISODate): Client {
 
   const fridays = [7, 14, 21, 28, 35, 42].map((d) => addDays(kickoff, d))
   const wpu: string[] = [
-    "All 32 people installed within 48 hours and everyone is recording. Shadow has six days of data. The early leaders are monthly client reports and ad pacing checks. Next week: the first workflow review with Priya.",
+    `All 32 people installed within 48 hours and everyone is recording. ${APP} has six days of data. The early leaders are monthly client reports and ad pacing checks. Next week: the first workflow review with Priya.`,
     "184 hours a week of repeat work found across 21 workflows. Client report drafts went live on day 12: 21.8 hours a week back already. Ad pacing checks go live on day 16.",
     "Readout held with Dana and Marcus, and 14 agents approved in priority order. 42 hours a week back, past the 40-hour day-90 guarantee in week three.",
     "Status updates are now written once, and meeting notes turn into tasks on their own. 64.4 hours a week back. Playbook v1 is out with six SOPs.",

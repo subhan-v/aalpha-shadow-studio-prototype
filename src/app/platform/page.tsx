@@ -10,6 +10,7 @@ import { installed, silent } from "@/lib/engine"
 import { useStore } from "@/lib/store"
 import { canMoney } from "@/lib/access"
 import { cost30 } from "@/lib/finance"
+import { APP } from "@/lib/flags"
 
 const TABS = [{ id: "users", label: "Users" }, { id: "ai", label: "AI usage" }, { id: "mcp", label: "MCP keys" }, { id: "releases", label: "Releases" }, { id: "blog", label: "Blog" }]
 
@@ -65,7 +66,7 @@ export default function Platform() {
       )}
 
       {tab === "mcp" && (
-        <Section title="MCP keys" sub="Read-only keys for the Shadow MCP. Values are never shown again after creation.">
+        <Section title="MCP keys" sub={`Read-only keys for the ${APP} MCP. Values are never shown again after creation.`}>
           <Table>
             <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Scope</TableHead><TableHead>Key</TableHead><TableHead>Last used</TableHead></TableRow></TableHeader>
             <TableBody>

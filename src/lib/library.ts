@@ -1,3 +1,4 @@
+import { APP } from "@/lib/flags"
 // Delivery library: the internal SOPs the team runs for every client, so nobody has to
 // leave the Studio to find out how something is done. Ask Studio answers from these too.
 
@@ -18,7 +19,7 @@ export const LIBRARY: LibDoc[] = [
     ],
   },
   {
-    id: "team", title: "Set up a client's team in Shadow", when: "Kickoff week", owner: "Account lead", mins: 45, tags: ["seats", "install", "team", "invite", "schedule", "access"],
+    id: "team", title: `Set up a client's team in ${APP}`, when: "Kickoff week", owner: "Account lead", mins: 45, tags: ["seats", "install", "team", "invite", "schedule", "access"],
     steps: [
       { text: "Add every seat in Members and seats, with owner, manager and member access." },
       { text: "Set each person's recording hours if they differ from the team default." },
