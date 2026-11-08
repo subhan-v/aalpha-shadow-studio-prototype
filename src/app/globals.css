@@ -1,0 +1,155 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* The dev server can start from another folder, so name the sources explicitly. */
+@source "../";
+
+@custom-variant dark (&:is(.dark *, [data-theme="dark"] *));
+
+/* ── Shadow design tokens ─────────────────────────────────────────────────────
+   From Shadow's DESIGN.md ("Ambient clarity") and the 2026-10-26 app audit:
+   Manrope for all UI text, DM Mono only for IDs and timestamps, an 8-step
+   type scale (12–44), weights 400/500/600, bronze as the only accent, mint and
+   coral reserved for operational state, flat 1px-bordered surfaces. */
+:root {
+  /* v5 palette (owner 2026-10-26: the brown and cream did not land). Cool neutrals, one
+     blue accent, categorical colours for work categories (validated with the dataviz
+     checker on white), and green, amber, red kept for status only. Typography is
+     unchanged from the audit: Manrope, DM Mono for IDs and times, 8 sizes, 3 weights. */
+  --graphite: #161b26;
+  --cloud: #f4f6f9;
+  --paper: #ffffff;
+  --night: #0f1420;
+  --night-raised: #1b2233;
+  /* accent: kept under the old variable names so every component switches at once */
+  --bronze: #2a78d6;
+  --bronze-dark: #7fb0ef;
+
+  --text-primary: #161b26;
+  --text-secondary: #4b5565;
+  --text-muted: #687182;
+
+  --page: var(--cloud);
+  --surface-1: var(--paper);
+  --surface-2: #eef2f7;
+  --grid: rgba(22, 27, 38, 0.09);
+  --hairline: rgba(22, 27, 38, 0.06);
+
+  --seq-100: #e8f1fc;
+  --seq-500: #5598e7;
+  --seq-700: #2a78d6;
+  --seq-800: #1c5cab;
+  --seq-900: #104281;
+
+  --series-5: #2a78d6;
+  --series-3: #161b26;
+  --series-4: #eb6834;
+
+  --status-good: #22a06b;
+  --status-warning: #f0a400;
+  --status-critical: #e5484d;
+  --delta-good: #137a4f;
+  --delta-bad: #c42b2f;
+  --good-bg: #e6f6ee;
+  --watch-bg: #fdf3dc;
+  --watch-fg: #8a5a00;
+  --bad-bg: #fdecec;
+
+  --radius: 0.75rem;
+  --radius-card: 20px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* the audit's 8-step scale; nothing under 12px */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 44px;
+}
+
+/* shadcn semantic vars, all pointing at Shadow tokens */
+.viz-root {
+  --background: var(--page);
+  --foreground: var(--text-primary);
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-1);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--graphite);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--status-critical);
+  --border: var(--grid);
+  --input: var(--grid);
+  --ring: var(--bronze);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    font-feature-settings: "tnum" 0;
+  }
+  h1, h2, h3 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  :focus-visible {
+    outline: 3px solid color-mix(in oklch, var(--bronze), transparent 55%);
+    outline-offset: 2px;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  * {
+    transition-duration: 150ms;
+  }
+}
+
+/* Printing the Workbook: only the export preview goes to paper. */
+@media print {
+  body * { visibility: hidden; }
+  [data-print-area], [data-print-area] * { visibility: visible; }
+  [data-print-area] { position: absolute; inset: 0; max-height: none; overflow: visible; border: 0; background: white; font-size: 11pt; }
+}
