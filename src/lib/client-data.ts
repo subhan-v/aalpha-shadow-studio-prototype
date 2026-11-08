@@ -127,7 +127,7 @@ export function processTrend(c: Client, name: string, hours: number) {
   return Array.from({ length: 6 }, (_, i) => Math.round(hours / WK_TO_MO * (0.82 + hash(c.id + name + i) * 0.36) * 10) / 10)
 }
 
-// ── Mina's asks (Oct 14 call): dollars from payroll, plain names, before vs after, per person ──
+// ── pilot owner's asks: dollars from payroll, plain names, before vs after, per person ──
 
 export { ROLE_CATS } from "./roles"
 import { ROLE_CATS } from "./roles"
@@ -142,7 +142,7 @@ export function rateFor(c: Client, cat: string): { rate: number; source: "payrol
 
 export const valueMo = (c: Client, hoursWk: number, cat: string) => hoursWk * WK_TO_MO * rateFor(c, cat).rate
 
-/** Before Shadow, last 30 days, now: the "did it work" view Mina asked for. */
+/** Before Shadow, last 30 days, now: the "did it work" view the pilot owner asked for. */
 export function beforeAfter(c: Client, today: ISODate) {
   const back = hoursBack(c, today)
   const rt = responseTime(c)

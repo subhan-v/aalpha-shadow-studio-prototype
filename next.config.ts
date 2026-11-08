@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
        this app instead — otherwise module resolution and the file watcher are
        scoped to the whole home folder. */
     root: path.resolve(import.meta.dirname),
+    /* Public demo build: swap the real Trivium pilot data for an empty module. */
+    ...(process.env.NEXT_PUBLIC_DEMO === "1" ? { resolveAlias: { "@/lib/pilot": "./src/lib/pilot-none.ts" } } : {}),
   },
 
   async headers() {

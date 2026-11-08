@@ -33,6 +33,7 @@ import { useStore } from "@/lib/store"
 import { recordingNow, recStatus } from "@/lib/recording"
 import { past90, phase, recurringMonth } from "@/lib/renewal"
 import { cn } from "@/lib/utils"
+import { IS_DEMO } from "@/lib/flags"
 import { Segmented } from "@/components/bits"
 
 type Role = "Owner" | "Manager" | "Member"
@@ -130,7 +131,9 @@ function ClientApp() {
         <span className="text-xs text-[#929088]">Read only · logged in Settings</span>
         {c.demo && <span className="rounded-full bg-[var(--bronze-dark)]/20 px-2.5 py-0.5 text-xs font-medium text-[var(--bronze-dark)]">Sample agency · made-up numbers</span>}
         <button onClick={() => (touring ? exitTour() : tourTo(Math.min(savedStop(c.id), tourStops(c, s.today).length - 1)))} aria-pressed={touring} className={cn("ml-auto inline-flex h-8 items-center gap-1.5 rounded-[10px] px-3 text-xs font-medium", touring ? "bg-[var(--bronze-dark)] text-[var(--night)]" : "border border-white/15 hover:bg-white/8")}><Presentation className="size-3.5" />{touring ? "Exit demo" : "Present"}</button>
-        <Link href={`/clients/${c.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-xs hover:bg-white/8"><ArrowLeft className="size-3.5" />Back to Studio</Link>
+        {IS_DEMO
+          ? <Link href={`/join/${c.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-xs hover:bg-white/8">See member onboarding</Link>
+          : <Link href={`/clients/${c.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-xs hover:bg-white/8"><ArrowLeft className="size-3.5" />Back to Studio</Link>}
       </div>
 
       <div className="flex flex-1 flex-wrap">
