@@ -9,7 +9,7 @@ const manrope = Manrope({ variable: "--font-manrope", subsets: ["latin"], weight
 const dmMono = DM_Mono({ variable: "--font-dm-mono", subsets: ["latin"], weight: ["400", "500"], display: "swap" })
 
 export const metadata: Metadata = {
-  title: IS_DEMO ? "Headroom demo" : `${APP} Studio prototype`,
+  title: IS_DEMO ? "Headroom demo" : "Shadow Studio prototype",
   description: IS_DEMO ? "Headroom on a sample agency. Made-up people and numbers." : "Internal prototype of the Aalpha client delivery console. Sample data only.",
   robots: { index: false, follow: false },
 }

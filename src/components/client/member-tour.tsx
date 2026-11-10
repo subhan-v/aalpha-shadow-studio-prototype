@@ -20,8 +20,8 @@ export function MemberTour({ c, me, go }: { c: Client; me: Seat; go: (tab: strin
     { title: "Check what we found", body: "Each finding has That's right and Not quite. If something is off, say so and Subhan fixes it before anyone acts on it." },
     { title: "Your allowlist", body: canBlock ? `Take apps or sites off your allowlist any time, and ${APP} skips them for you.` : "Your owner manages the team allowlist. Ask to take something off and Subhan sorts it.", show: "Take things off" },
     { title: "Suggest for the allowlist", body: "Missing a work tool? Suggest it. Your owner decides, and nothing outside the allowlist is captured.", show: "Suggest something" },
-    { title: "Your hours", body: "Narrow your recording hours inside the hours your manager set, or pause any time from the menu bar or here.", show: "Change my hours" },
-    { title: "What your manager sees", body: "Settings shows exactly what your manager sees, and what nobody sees: never your screenshots, window titles, blocked apps or pay.", show: "See it" },
+    { title: "Your hours", body: "It runs only inside your work hours and stops when your screen locks. Narrow the hours, or pause any time from the menu bar or here.", show: "Change my hours" },
+    { title: "What your manager sees", body: "Team totals only. Your own numbers, screenshots, window titles and blocked apps are never shown to anyone else, and nothing here is used for reviews or pay.", show: "See it" },
     { title: "You have support", body: "Ask the guide in the corner any time, or reply to Subhan in Slack. Every question gets an answer from a person if the guide can't help." },
   ]
   const s = stops[i]

@@ -9,7 +9,7 @@ import { CalendarDays, CheckCircle2, ChevronDown, Circle, Laptop, MessageSquare,
 import { Section } from "@/components/bits"
 import { Button } from "@/components/ui/button"
 import { scheduleFor } from "@/lib/client-data"
-import { fmtLong } from "@/lib/dates"
+import { addDays, diffDays, fmtLong } from "@/lib/dates"
 import { hasConsent } from "@/lib/consent"
 import { installed } from "@/lib/engine"
 import { FAQ } from "@/lib/faq"
@@ -36,10 +36,19 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
     return { ...x, prefs: { ...x.prefs, [me.id]: { ...p, checklist: [...(p.checklist ?? []), "faq"] } } }
   })
 
+  const owner = c.seats[0]
+  const browser = me.mode === "browser"
+  const privateTo = me.installAt ? addDays(me.installAt, 7) : null
+  const inPrivateWeek = !!privateTo && installed(me, t) && diffDays(privateTo, t) > 0
+
   const sources: { icon: typeof Laptop; name: string; on: boolean; status: string; records: string; never?: string }[] = [
-    { icon: Laptop, name: `${APP} on your laptop`, on: installed(me, t), status: installed(me, t) ? `${st.status} · ${hours}` : "Not installed yet",
-      records: "Screenshots at intervals, plus the app, site and clicks, only for the work apps and sites on your allowlist.",
-      never: "Video, your mic or camera, and anything off your allowlist." },
+    browser
+      ? { icon: Laptop, name: `${APP} in your work browser`, on: installed(me, t), status: installed(me, t) ? `${st.status} · ${hours}` : "Not set up yet",
+          records: "The work sites you use in your work Chrome profile and the steps you take in them.",
+          never: "Screenshots, what you type, other Chrome profiles, or anything outside the browser." }
+      : { icon: Laptop, name: `${APP} on your laptop`, on: installed(me, t), status: installed(me, t) ? `${st.status} · ${hours}` : "Not installed yet",
+          records: "Screenshots at intervals, plus the app, site and clicks, only for the work apps and sites on your allowlist. Screenshots are deleted after 7 days.",
+          never: "What you type, video, your mic or camera, and anything off your allowlist." },
     { icon: MessageSquare, name: "Slack", on: c.slackConnected, status: c.slackConnected ? (me.slack ? `Signed in as @${me.slack.handle} · ${channels} channels` : `${channels} channels`) : "Not connected",
       records: "What you post in public channels, and in private channels your workspace admin is in.",
       never: "Your direct messages or group DMs." },
@@ -55,9 +64,22 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
         <span aria-hidden className="grid size-10 place-items-center rounded-full bg-[var(--good-bg)] text-[var(--delta-good)]"><ShieldCheck className="size-5" /></span>
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="font-semibold">{APP} studies the work, not the worker</span>
-          <span className="text-sm text-[var(--text-secondary)]">It looks for repeat work an agent could take off your plate. Here is exactly what it records from you, {me.name.split(" ")[0]}, and what it never does.</span>
+          <span className="text-sm text-[var(--text-secondary)]">It looks for repeat work an agent could take off your plate. Here is exactly what it picks up from you, {me.name.split(" ")[0]}, and what it never does.</span>
         </div>
       </div>
+
+      <div className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--bronze)] bg-card p-5">
+        <span className="text-xs font-medium text-[var(--text-secondary)]">{owner.name}&apos;s promise to the team</span>
+        <p className="text-base font-medium">Nothing {APP} picks up will be used for reviews, pay, discipline or firing. I see team totals, never your own numbers.</p>
+        <span className="text-xs text-[var(--text-muted)]">Signed by {c.pledge?.by ?? owner.name}{c.pledge?.at ?? c.signedDate ? ` on ${fmtLong(c.pledge?.at ?? c.signedDate)}` : ""}. It is also a term in {c.name}&apos;s agreement with Aalpha.</span>
+      </div>
+
+      {privateTo && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-[var(--seq-100)] px-4 py-3 text-sm">
+          <span className="min-w-0 flex-1">{inPrivateWeek ? `Your first week is private until ${fmtLong(privateTo)}. Only you see what was picked up. Look it over and delete anything before it counts.` : `Your first week was private, until ${fmtLong(privateTo)}. Nothing from it reached your team before you could check it.`}</span>
+          {inPrivateWeek && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => go("me")}>See what was picked up</Button>}
+        </div>
+      )}
 
       <Section title="Where your data comes from" sub="Your sources, and what each one records">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
@@ -70,7 +92,7 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-[var(--text-muted)]">Consent: {hasConsent(c, me) ? `you agreed to ${me.consentVersion ?? c.consentVersion ?? "the consent form"}${me.consentAt ? ` on ${fmtLong(me.consentAt)}` : ""}.` : `not given yet. ${APP} can't record you until you agree.`}</p>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">Consent: {hasConsent(c, me) ? `you agreed to ${me.consentVersion ?? c.consentVersion ?? "the consent form"}${me.consentAt ? ` on ${fmtLong(me.consentAt)}` : ""}.` : `not given yet. ${APP} stays off for you until you agree.`}</p>
       </Section>
 
       <Section title="Privacy, in plain words" sub="The same facts your company signed up to">
@@ -87,14 +109,15 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
       <Section title="Who sees what" sub="Inside your company, and at Aalpha">
         <ul className="flex flex-col text-sm">
           <li className="flex gap-3 border-t py-2.5 first:border-t-0"><span className="w-32 shrink-0 font-medium">You</span><span className="text-[var(--text-secondary)]">My work: your time, your repeat work and what agents take off your plate.</span></li>
-          <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">Your manager</span><span className="text-[var(--text-secondary)]">Your hours and repeat work, your team&apos;s totals, and the interview summary you approve. Never your pay rate, and never your My work page.</span></li>
+          <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">Your manager</span><span className="text-[var(--text-secondary)]">Your team&apos;s totals and the interview summary you approve. Never your own hours, your pay rate or your My work page.</span></li>
+          <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">{owner.name.split(" ")[0]} (owner)</span><span className="text-[var(--text-secondary)]">The same team totals, plus who has finished setup. Never one person&apos;s numbers.</span></li>
           <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">Aalpha</span><span className="text-[var(--text-secondary)]">Reviews every finding before your company sees it. Subhan answers your questions.</span></li>
         </ul>
       </Section>
 
       <Section title="Your controls" sub="You can change these any time">
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" className="rounded-[10px]" onClick={() => go("me")}><Pause />Pause recording</Button>
+          <Button variant="outline" className="rounded-[10px]" onClick={() => go("me")}><Pause />Pause</Button>
           <Button variant="outline" className="rounded-[10px]" onClick={() => go("settings")}><Settings />Change your allowlist</Button>
           <Button variant="outline" className="rounded-[10px]" onClick={() => go("settings")}>Delete a day</Button>
         </div>

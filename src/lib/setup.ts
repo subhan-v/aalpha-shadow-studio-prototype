@@ -93,14 +93,16 @@ export { hasConsent, needsReconsent } from "./consent"
 export const SLACK_SCOPE = `In Slack, ${APP} reads public channels and the private channels your workspace admin is in. It never reads direct messages.`
 
 export const CONSENT_POINTS = [
+  "Nothing here is used for reviews, pay, discipline or firing. Your company agreed to that in writing.",
+  "Your manager and owner see team totals. Your own numbers are visible only to you.",
   `You choose the work apps and sites ${APP} sees, on an allowlist.`,
-  "It takes screenshots at intervals, plus the app, site and clicks. It never records video and never uses your mic or camera.",
-  "Private info is encrypted and redacted on your laptop before anything is sent.",
-  "You set your own hours, and it switches off outside them. You can pause any time.",
-  "The Chrome extension marks your work profile, so other profiles are avoided.",
-  "Analytics look only at high-level patterns.",
+  "You pick how it runs: your work browser only (no app, no screenshots), or the Mac app.",
+  "With the Mac app it takes screenshots at intervals, plus the app, site and clicks. Never your keystrokes, video, mic or camera.",
+  "Private info is redacted on your laptop before anything is sent. Screenshots are deleted after 7 days.",
+  "It runs inside your work hours and stops when your screen locks. You can pause any time.",
+  "Your first 7 days are private: only you see what was picked up, and you can delete any of it.",
   SLACK_SCOPE,
-  "You can withdraw your consent in your settings. Recording stops for you when you do.",
+  "You can withdraw your consent in your settings. It stops for you when you do.",
 ]
 
 // ── required onboarding ─────────────────────────────────────────────────────
@@ -123,9 +125,10 @@ export function onboardingSteps(c: Client, s: Seat, role: Role, today: string): 
   ]
   const owner: Step[] = [
     { k: "teams", name: "Confirm your teams", body: "Suggested from Slack user groups, job titles and the Fit Map.", done: !!c.teamsConfirmed || legacy, auto: true, tab: "roster" },
+    { k: "pledge", name: "Sign the promise to your team", body: `Nothing ${APP} picks up is used for reviews, pay, discipline or firing. Your team sees your name on it before they install.`, done: !!c.pledge || legacy },
     { k: "slackscope", name: `Confirm what ${APP} reads in Slack`, body: "Public channels and the private channels you're in, never direct messages. Your team sees the same line in their consent form.", done: !!c.connections.slackDisclosure || legacy },
     { k: "connectors", name: "Connect your tools", body: "Call recording, CRM, email, calendar.", done: connectorsOf(c).filter((x) => x.on).length >= 2 || legacy, auto: true, tab: "settings" },
-    { k: "schedule", name: "Set the recording schedule", body: "Work hours, 24/7 or custom, for the team or per person.", done: t("schedule") || !!c.capture.preset, tab: "settings" },
+    { k: "schedule", name: "Set the recording schedule", body: "Work hours or custom, for the team or per person. It never runs outside them.", done: t("schedule") || !!c.capture.preset, tab: "settings" },
     { k: "invite", name: "Invite your team", body: "Every invite goes out through Slack and needs a team.", done: c.seats.length > 1, auto: true, tab: "settings" },
     { k: "goals", name: "Lock in your goals", body: "They steer every ranking.", done: !!c.goalLock?.locked || legacy, auto: true, tab: "goals" },
   ]
@@ -136,12 +139,12 @@ export function onboardingSteps(c: Client, s: Seat, role: Role, today: string): 
   const member: Step[] = [
     { k: "allow", name: "Set your allowlist", body: `Pick the work apps and sites ${APP} may see.`, done: t("allow"), tab: "settings" },
     { k: "ci", name: "Take the Culture Intelligence survey", body: "About 10 minutes. It places you on the team's Fit Map.", done: s.ciSurvey || legacy, auto: true },
-    { k: "faq", name: `See what ${APP} records from you`, body: "Where your data comes from, what's tracked, what never is, and how to pause.", done: t("faq"), tab: "how" },
+    { k: "faq", name: `See what ${APP} picks up from you`, body: "Where your data comes from, what it sees, what it never does, and how to pause.", done: t("faq"), tab: "how" },
   ]
   // Members (owner direction 2026-10-30): sign in with Slack and agree, then 1 download the app,
   // 2 verification check, 3 Chrome extension, 4 the interview. Allowlist and survey come later.
   if (role === "Member") return [all[0], all[1],
-    { ...all[2], name: `Download the ${APP} app`, body: "For your work Mac. About 3 minutes; it signs you in with Slack." },
+    { ...all[2], name: `Choose how ${APP} runs`, body: "Your work browser only, or the Mac app. About 3 minutes either way." },
     { ...all[3], name: "Run the verification check", body: "We confirm the app is connected and the 3 Mac permissions are on.", auto: false },
     { k: "extension", name: "Add the Chrome extension", body: "This will let us know which profile we should focus on when it comes to your work, and we can avoid looking at any other profiles.", done: s.extension ?? ((inst || legacy) && s.permissions !== false) },
     { ...all[4], name: "Do your 5-minute AI interview", body: "Five questions about your work, by voice. You approve the summary before anyone sees it." }]

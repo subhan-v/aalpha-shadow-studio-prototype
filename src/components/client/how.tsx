@@ -15,14 +15,14 @@ import { cn } from "@/lib/utils"
 import { APP } from "@/lib/flags"
 
 export const PRIVACY: [typeof Lock, string, string][] = [
+  [ShieldCheck, "Never used to judge you", "Your company agreed in writing: nothing here is used for reviews, pay, discipline or firing."],
+  [EyeOff, "Your manager sees teams, not you", "Your own numbers are yours alone. Managers and owners see team totals."],
   [ListChecks, "You choose what it sees", "Only the work apps and sites on your allowlist."],
-  [ScanSearch, "Screenshots at intervals", "Screenshots at intervals, plus the app, site and clicks. It never records video and never uses the mic or camera."],
-  [Lock, "Redacted on the laptop", "Private info is encrypted and redacted on the laptop before anything is sent."],
-  [Hand, "Your hours, and pause any time", "Set your own hours and it switches off outside them. Pause from the menu bar whenever you want."],
-  [UserRound, "Your work profile only", "The Chrome extension marks your work profile, so other profiles are avoided."],
-  [KeyRound, "Three Mac permissions", "Screen Recording, Accessibility and Input Monitoring."],
-  [EyeOff, "High-level patterns only", "Analytics look only at high-level patterns."],
-  [ShieldCheck, "Secure infrastructure", "SOC 2 and HIPAA compliant infrastructure. Our own certification is in progress."],
+  [UserRound, "Work browser only, if you prefer", "Run just the Chrome extension on your work profile. No app on your laptop and no screenshots."],
+  [ScanSearch, "Never what you type", "With the Mac app: screenshots at intervals, plus the app, site and clicks. Never your keystrokes, video, mic or camera."],
+  [Lock, "Filtered on your laptop, deleted in 7 days", "Private info is redacted on your laptop before anything is sent. Screenshots are deleted after 7 days."],
+  [Hand, "Work hours only", "It runs inside your work hours and stops when your screen locks. Pause any time from the menu bar."],
+  [KeyRound, "A private first week", "For your first 7 days only you see what was picked up. Delete anything you like before it counts."],
 ]
 
 const DAYS: { day: number; at: string; name: string; body: string; promise?: boolean }[] = [

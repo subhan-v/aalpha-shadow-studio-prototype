@@ -47,7 +47,7 @@ const NAV: { id: string; label: string; icon: typeof LayoutGrid; roles: Role[] }
   { id: "team", label: "Overview", icon: LayoutGrid, roles: ["Owner", "Manager"] },
   { id: "exec", label: "Executive report", icon: Briefcase, roles: ["Owner", "Manager", "Member"] },
   { id: "me", label: "My time", icon: Clock, roles: ["Owner", "Manager", "Member"] },
-  { id: "people", label: "People", icon: Users, roles: ["Owner", "Manager"] },
+  { id: "people", label: "Teams", icon: Users, roles: ["Owner", "Manager"] },
   { id: "roster", label: "Recording", icon: UserCheck, roles: ["Owner", "Manager"] },
   { id: "fitmap", label: "Fit Map", icon: Network, roles: ["Owner", "Manager"] },
   { id: "workflows", label: "Workflows", icon: BarChart3, roles: ["Owner", "Manager"] },
@@ -180,7 +180,7 @@ function ClientApp() {
               </div>
             </div>
           )}
-          {!gated && tab === "team" && <HomeTab c={c} go={go} rates={role === "Owner"} people={role === "Owner"} scope={role === "Owner" || seatsInScope(c, role, me).length < MIN_TEAM ? undefined : { seats: seatsInScope(c, role, me), label: scopeLabel(c, role, me) }} />}
+          {!gated && tab === "team" && <HomeTab c={c} go={go} rates={role === "Owner"} people={false} scope={role === "Owner" || seatsInScope(c, role, me).length < MIN_TEAM ? undefined : { seats: seatsInScope(c, role, me), label: scopeLabel(c, role, me) }} />}
           {!gated && tab === "insights" && <InsightsHome c={c} role={role} me={me} go={go} />}
           {!gated && tab === "me" && (role === "Member"
             ? <>{!c.prefs[me.id]?.checklist?.includes("walkthrough") && <MemberTour c={c} me={me} go={go} />}<MyTimeTab c={c} me={me} money={false} compact found={<div className="flex flex-col gap-3"><h2 className="text-lg">What {APP} found in your work</h2><MyWorkflows c={c} me={me} /></div>} /></>

@@ -202,7 +202,7 @@ function CaptureRules({ c }: { c: Client }) {
 function Schedule({ c, canTeam, owner, scope }: { c: Client; canTeam: boolean; owner?: boolean; scope?: string[] | null }) {
   return (
     <>
-      <p className="rounded-2xl border border-dashed bg-card px-4 py-3 text-sm text-[var(--text-secondary)]">Scheduled recording is coming soon. Set the hours now; until it ships, people pause by hand outside them.</p>
+      <p className="rounded-2xl border bg-card px-4 py-3 text-sm text-[var(--text-secondary)]">{APP} runs only inside these hours and stops when a screen locks. The team can&apos;t be set to 24/7.</p>
       {canTeam && <TeamWindow c={c} owner={!!owner} />}
       <PeopleSchedules c={c} owner={!!owner} scope={scope ?? null} />
       {canTeam && <ReportDelivery c={c} />}
@@ -210,7 +210,7 @@ function Schedule({ c, canTeam, owner, scope }: { c: Client; canTeam: boolean; o
   )
 }
 
-// Work hours, around the clock, or your own days and hours. Only an owner can turn on 24/7.
+// Work hours or your own days and hours. 24/7 exists only for an owner's own seat, never for the team.
 const PRESETS: { id: "work" | "247" | "custom"; label: string; days: number[]; start: string; end: string }[] = [
   { id: "work", label: "Work hours", days: [1, 2, 3, 4, 5], start: "08:00", end: "18:00" },
   { id: "247", label: "24/7", days: [1, 2, 3, 4, 5, 6, 7], start: "00:00", end: "23:59" },
@@ -218,10 +218,10 @@ const PRESETS: { id: "work" | "247" | "custom"; label: string; days: number[]; s
 ]
 export const presetOf = (k: { preset?: string; days: number[]; start: string; end: string }) => k.preset ?? (k.days.length === 7 && k.start === "00:00" ? "247" : "work")
 
-function PresetPicker({ value, owner, onPick, label }: { value: string; owner: boolean; onPick: (p: (typeof PRESETS)[number]) => void; label: string }) {
+function PresetPicker({ value, owner: allow247, onPick, label }: { value: string; owner: boolean; onPick: (p: (typeof PRESETS)[number]) => void; label: string }) {
   return (
     <div role="radiogroup" aria-label={label} className="flex w-fit rounded-xl border p-1">
-      {PRESETS.map((p) => <button key={p.id} role="radio" aria-checked={value === p.id} disabled={p.id === "247" && !owner} title={p.id === "247" && !owner ? "Only an owner can set 24/7" : undefined} onClick={() => onPick(p)} className={cn("h-8 rounded-[9px] px-3 text-sm disabled:opacity-40", value === p.id ? "bg-[var(--graphite)] font-medium text-white" : "text-[var(--text-secondary)]")}>{p.label}</button>)}
+      {PRESETS.filter((p) => p.id !== "247" || allow247).map((p) => <button key={p.id} role="radio" aria-checked={value === p.id} onClick={() => onPick(p)} className={cn("h-8 rounded-[9px] px-3 text-sm disabled:opacity-40", value === p.id ? "bg-[var(--graphite)] font-medium text-white" : "text-[var(--text-secondary)]")}>{p.label}</button>)}
     </div>
   )
 }
@@ -230,7 +230,7 @@ function PeopleSchedules({ c, owner, scope }: { c: Client; owner: boolean; scope
   const { patch } = useClient(c)
   const set = (id: string, v: Client["schedules"][string] | null, who: string) => patch((y) => { const n = { ...y.schedules }; if (v) n[id] = v; else delete n[id]; return { ...y, schedules: n } }, v ? `Schedule for ${who}: ${v.start} to ${v.end}.` : `${who} back on the team schedule.`)
   return (
-    <Section title="Each person's schedule" sub={`Set by the owner or a manager. ${APP} records each person only inside their own hours. People can narrow theirs, never widen it.`}>
+    <Section title="Each person's schedule" sub={`Set by the owner or a manager. ${APP} runs for each person only inside their own hours. People can narrow theirs, never widen it.`}>
       <div className="overflow-x-auto">
         <Table className="min-w-[980px]">
           <TableHeader><TableRow><TableHead>Person</TableHead><TableHead>Preset</TableHead><TableHead>Days</TableHead><TableHead>Hours</TableHead><TableHead /></TableRow></TableHeader>
@@ -242,7 +242,7 @@ function PeopleSchedules({ c, owner, scope }: { c: Client; owner: boolean; scope
               return (
                 <TableRow key={x.id}>
                   <TableCell><span className="flex flex-col"><span className="font-medium">{x.name}</span><span className="text-xs text-[var(--text-muted)]">{x.role}</span></span></TableCell>
-                  <TableCell><PresetPicker label={`Preset for ${x.name}`} owner={owner} value={presetOf(k)} onPick={(p) => put(p.id === "custom" ? { preset: "custom" } : { preset: p.id, days: p.days, start: p.start, end: p.end })} /></TableCell>
+                  <TableCell><PresetPicker label={`Preset for ${x.name}`} owner={owner && x.id === c.seats[0].id} value={presetOf(k)} onPick={(p) => put(p.id === "custom" ? { preset: "custom" } : { preset: p.id, days: p.days, start: p.start, end: p.end })} /></TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       {DAYS.map((d, i) => { const n = i + 1; const on = k.days.includes(n); return <button key={d} aria-pressed={on} aria-label={`${x.name} ${d}`} onClick={() => put({ days: on ? k.days.filter((z) => z !== n) : [...k.days, n].sort() })} className={cn("h-7 w-9 rounded-[8px] border text-xs", on ? "border-[var(--bronze)] bg-[var(--seq-100)] font-medium text-[var(--seq-900)]" : "text-[var(--text-muted)]")}>{d[0]}{d[1]}</button> })}
@@ -266,7 +266,7 @@ function PeopleSchedules({ c, owner, scope }: { c: Client; owner: boolean; scope
   )
 }
 
-function TeamWindow({ c, owner }: { c: Client; owner: boolean }) {
+function TeamWindow({ c }: { c: Client; owner: boolean }) {
   const { setCapture } = useClient(c)
   const k = c.capture
   return (
@@ -274,9 +274,8 @@ function TeamWindow({ c, owner }: { c: Client; owner: boolean }) {
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">Recording hours</span>
-          <PresetPicker label="Team recording hours" owner={owner} value={presetOf(k)} onPick={(p) => setCapture(p.id === "custom" ? { preset: "custom" } : { preset: p.id, days: p.days, start: p.start, end: p.end }, `Team recording set to ${p.label}.`)} />
-          {presetOf(k) === "247" && <span className="text-xs text-[var(--watch-fg)]">Recording 24/7. Everyone sees a banner and can pause any time.</span>}
-          {!owner && <span className="text-xs text-[var(--text-muted)]">Only an owner can set 24/7.</span>}
+          <PresetPicker label="Team hours" owner={false} value={presetOf(k)} onPick={(p) => setCapture(p.id === "custom" ? { preset: "custom" } : { preset: p.id, days: p.days, start: p.start, end: p.end }, `Team recording set to ${p.label}.`)} />
+          <span className="text-xs text-[var(--text-muted)]">Work hours only. It stops when a screen locks.</span>
         </div>
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">Days</span>

@@ -33,11 +33,11 @@ function say(st: Stage, first: string): Msg[] {
   switch (st) {
     case "slack": return [{ id, who: "guide", text: "First, sign in with Slack so I know it's you.", card: "slack" }]
     case "consent": return [{ id, who: "guide", text: `Before anything goes on your laptop, here's exactly what ${APP} records and what it never does.`, card: "consent" }]
-    case "install": return [{ id, who: "guide", text: `Thanks. Step 1 of 4: download the ${APP} app for your work Mac. About 3 minutes.`, card: "install" }]
-    case "perms": return [{ id, who: "guide", text: "Step 2 of 4: let's check it's working. I'll look at the app, the 3 Mac permissions and your hours.", card: "perms" }]
+    case "install": return [{ id, who: "guide", text: `Thanks. Next, choose how ${APP} runs for you. Most people on their own laptop pick the work browser. You can switch later.`, card: "install" }]
+    case "perms": return [{ id, who: "guide", text: "Now let's check it's working. Your Mac will show three prompts. One says the app wants to monitor input from your keyboard: that is Apple's wording for seeing clicks. It never reads what you type.", card: "perms" }]
     case "extension": return [{ id, who: "guide", text: `Step 3 of 4: add the ${APP} extension to Chrome, in your work profile. This will let us know which profile we should focus on when it comes to your work, and we can avoid looking at any other profiles.`, card: "extension" }]
     case "interview": return [{ id, who: "guide", text: "Last step: a 5-minute interview, right here. Five questions about your work. Answer by voice or type, and you approve the summary before anyone sees it. The audio is deleted after.", card: "interview" }]
-    case "done": return [{ id, who: "guide", text: `That's everything, ${first}. Thank you. ${APP} is recording your work hours, and your first findings show up after Aalpha reviews them, usually within a week.`, card: "done" }]
+    case "done": return [{ id, who: "guide", text: `That's everything, ${first}. Thank you. ${APP} now runs during your work hours. Your first week is private to you, and your first findings show up after Aalpha reviews them, usually within a week.`, card: "done" }]
   }
 }
 
@@ -76,7 +76,9 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
 
   const signIn = () => { you("Signed in with Slack"); seat((y) => ({ ...y, slack: { handle: me.name.toLowerCase().replace(/[^a-z]+/g, "."), display: me.name, email: `${first.toLowerCase()}@${c.slackSlug}.com`, hue: 210 } }), "signed in with Slack") }
   const agree = () => { you("I agree"); update(c.id, (x, t) => ({ ...x, seats: x.seats.map((y) => (y.id === me.id ? agreeTo(x, y, t) : y)), log: [{ date: t, text: `${me.name} agreed to ${x.consentVersion ?? "the consent form"}.` }, ...x.log] })) }
-  const install = () => { you("Downloaded and opened the app"); seat((y, t) => ({ ...y, installAt: t, permissions: false, extension: false }), `installed ${APP}`) }
+  const install = () => { you("Downloaded and opened the app"); seat((y, t) => ({ ...y, mode: "full", installAt: t, permissions: false, extension: false }), `installed ${APP}`) }
+  // Work browser only: the extension on the work profile is the whole install. No app, no Mac permissions.
+  const browserOnly = () => { you("Work browser only"); seat((y, t) => ({ ...y, mode: "browser", installAt: t, permissions: true, extension: true }), `set up ${APP} in their work browser only`) }
   const runCheck = () => {
     setChecking(0)
     CHECKS.forEach((_, i) => setTimeout(() => setChecking(i + 1), 420 * (i + 1)))
@@ -147,7 +149,20 @@ export function JoinChat({ c, me }: { c: Client; me: Seat }) {
           {hasConsent(c, me) ? <Done t="You agreed. You can withdraw it in Settings." /> : <Button className="w-fit rounded-[10px]" onClick={agree}>I agree</Button>}
         </div>
       )
-      case "install": return <div className={box}>{live("install") ? <><p className="text-sm text-[var(--text-secondary)]">When it opens, sign in with Slack and allow the 3 permissions it asks for: Screen Recording, Accessibility and Input Monitoring.</p><Button className="w-fit rounded-[10px]" onClick={install}><Download />Download for Mac</Button></> : <Done t={`${APP} is on your Mac`} />}</div>
+      case "install": return <div className={box}>{live("install") ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2 rounded-xl border border-[var(--bronze)] bg-[var(--seq-100)] p-3">
+            <span className="text-sm font-semibold">Work browser only <span className="ml-1 rounded-full bg-card px-2 py-0.5 text-xs font-medium">Recommended on your own laptop</span></span>
+            <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-[var(--text-secondary)]"><li>A Chrome extension on your work profile</li><li>No app on your laptop, no screenshots</li><li>Nothing outside that profile is seen</li></ul>
+            <Button className="mt-auto w-fit rounded-[10px]" onClick={browserOnly}><Puzzle />Add to Chrome</Button>
+          </div>
+          <div className="flex flex-col gap-2 rounded-xl border p-3">
+            <span className="text-sm font-semibold">Mac app</span>
+            <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-[var(--text-secondary)]"><li>For work done outside the browser</li><li>Screenshots at intervals, deleted after 7 days</li><li>Only the apps on your allowlist, never what you type</li></ul>
+            <Button variant="outline" className="mt-auto w-fit rounded-[10px]" onClick={install}><Download />Download for Mac</Button>
+          </div>
+        </div>
+      ) : <Done t={me.mode === "browser" ? `${APP} is on your work browser only` : `${APP} is on your Mac`} />}</div>
       case "perms": return (
         <div className={box}>
           <ul className="flex flex-col gap-1.5 text-sm">{CHECKS.map((x, i) => { const ok = !live("perms") || checking > i; return <li key={x} className="flex items-center gap-2">{ok ? <CheckCircle2 className="size-4 text-[var(--status-good)]" /> : checking === i ? <Loader2 className="size-4 animate-spin text-[var(--text-muted)]" /> : <Circle className="size-4 text-[var(--text-muted)]" />}{x}</li> })}</ul>

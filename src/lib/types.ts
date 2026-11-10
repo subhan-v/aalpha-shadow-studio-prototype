@@ -18,6 +18,7 @@ export type Seat = {
   consentAt?: ISODate | null // when they agreed to the consent form
   consentVersion?: string | null // which version they agreed to; a new version asks again
   permissions?: boolean // false = installed but the 3 Mac permissions are not all on
+  mode?: "browser" | "full" // how Headroom runs for this person: work browser only (extension, no screenshots) or the Mac app
   extension?: boolean // the Chrome extension is on their work profile (members, v19.3); unset = not tracked
   exec?: boolean // C-suite: gets the Executive dashboard
   team?: string // function team; every invite names one
@@ -199,7 +200,7 @@ export type Capture = {
   mode: "continuous" | "windows" // windows = two weeks a month after month 1
   membersCanPause: boolean
   membersCanBlock: boolean
-  preset?: "work" | "247" | "custom" // 24/7 can only be set by an owner
+  preset?: "work" | "247" | "custom" // 24/7 exists only for an owner's own seat, never for the team
 }
 
 export type Connections = {
@@ -316,6 +317,7 @@ export type Client = {
   kickoffBooked: ISODate | null
   kickoffDate: ISODate | null
   agreementSigned: boolean
+  pledge?: { by: string; at: ISODate } | null // the owner signed the no-evaluation promise the team sees
   paymentIn: boolean
   baselineSigned: ISODate | null
   goalsCaptured: boolean

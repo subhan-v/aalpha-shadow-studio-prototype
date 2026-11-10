@@ -74,7 +74,8 @@ export function GetStarted({ c, me, role, go }: { c: Client; me: Seat; role: Rol
             {!x.done && x.k === "perms" && me.installAt && <Button size="sm" variant="outline" className="rounded-[10px]" title="In the prototype this marks the permissions as on" onClick={() => seat((y) => ({ ...y, permissions: true }), "turned on the Mac permissions")}>I&apos;ve turned them on</Button>}
             {!x.done && x.k === "ci" && <span className="flex flex-wrap gap-2"><a href={surveyLink(c)} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center gap-1 rounded-[10px] border px-3 text-sm font-medium">Take the survey<ExternalLink className="size-3.5" /></a><Button size="sm" variant="ghost" className="rounded-[10px]" onClick={() => seat((y) => ({ ...y, ciSurvey: true }), "finished the Culture Intelligence survey")}>I&apos;ve finished it</Button></span>}
             {!x.done && x.tab && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => go(x.tab!)}>{x.k === "interview" ? "Start interview" : "Open"}</Button>}
-            {!x.done && !x.auto && x.k !== "consent" && x.k !== "interview" && x.k !== "slackscope" && <Button size="sm" variant="ghost" className="rounded-[10px]" onClick={() => tick(x.k)}>Mark done</Button>}
+            {!x.done && x.k === "pledge" && <Button size="sm" className="rounded-[10px]" onClick={() => update(c.id, (y, t) => ({ ...y, pledge: { by: me.name, at: t }, log: [{ date: t, text: `${me.name} signed the promise to the team.` }, ...y.log] }))}>Sign it</Button>}
+            {!x.done && !x.auto && x.k !== "consent" && x.k !== "interview" && x.k !== "slackscope" && x.k !== "pledge" && <Button size="sm" variant="ghost" className="rounded-[10px]" onClick={() => tick(x.k)}>Mark done</Button>}
           </li>
         ))}
       </ol>
