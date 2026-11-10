@@ -100,7 +100,7 @@ export const CONSENT_POINTS = [
   "With the Mac app it takes screenshots at intervals, plus the app, site and clicks. Never your keystrokes, video, mic or camera.",
   "Private info is redacted on your laptop before anything is sent. Screenshots are deleted after 7 days.",
   "It runs inside your work hours and stops when your screen locks. You can pause any time.",
-  "Your first 7 days are private: only you see what was picked up, and you can delete any of it.",
+  "For your first 7 days nobody at your company sees anything from you. Aalpha's system is already learning from it, and anything you delete never counts.",
   SLACK_SCOPE,
   "You can withdraw your consent in your settings. It stops for you when you do.",
 ]

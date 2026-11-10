@@ -37,7 +37,7 @@ function say(st: Stage, first: string): Msg[] {
     case "perms": return [{ id, who: "guide", text: "Now let's check it's working. Your Mac will show three prompts. One says the app wants to monitor input from your keyboard: that is Apple's wording for seeing clicks. It never reads what you type.", card: "perms" }]
     case "extension": return [{ id, who: "guide", text: `Step 3 of 4: add the ${APP} extension to Chrome, in your work profile. This will let us know which profile we should focus on when it comes to your work, and we can avoid looking at any other profiles.`, card: "extension" }]
     case "interview": return [{ id, who: "guide", text: "Last step: a 5-minute interview, right here. Five questions about your work. Answer by voice or type, and you approve the summary before anyone sees it. The audio is deleted after.", card: "interview" }]
-    case "done": return [{ id, who: "guide", text: `That's everything, ${first}. Thank you. ${APP} now runs during your work hours. Your first week is private to you, and your first findings show up after Aalpha reviews them, usually within a week.`, card: "done" }]
+    case "done": return [{ id, who: "guide", text: `That's everything, ${first}. Thank you. ${APP} now runs during your work hours. For your first 7 days nobody at your company sees anything from you, and your first findings show up after Aalpha reviews them, usually within a week.`, card: "done" }]
   }
 }
 

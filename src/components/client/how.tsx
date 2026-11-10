@@ -22,7 +22,7 @@ export const PRIVACY: [typeof Lock, string, string][] = [
   [ScanSearch, "Never what you type", "With the Mac app: screenshots at intervals, plus the app, site and clicks. Never your keystrokes, video, mic or camera."],
   [Lock, "Filtered on your laptop, deleted in 7 days", "Private info is redacted on your laptop before anything is sent. Screenshots are deleted after 7 days."],
   [Hand, "Work hours only", "It runs inside your work hours and stops when your screen locks. Pause any time from the menu bar."],
-  [KeyRound, "A private first week", "For your first 7 days only you see what was picked up. Delete anything you like before it counts."],
+  [KeyRound, "7 days private from your company", "For your first 7 days nobody at your company sees anything from you. Delete anything you like and it never counts."],
 ]
 
 const DAYS: { day: number; at: string; name: string; body: string; promise?: boolean }[] = [

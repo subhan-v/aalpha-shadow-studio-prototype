@@ -76,7 +76,7 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
 
       {privateTo && (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-[var(--seq-100)] px-4 py-3 text-sm">
-          <span className="min-w-0 flex-1">{inPrivateWeek ? `Your first week is private until ${fmtLong(privateTo)}. Only you see what was picked up. Look it over and delete anything before it counts.` : `Your first week was private, until ${fmtLong(privateTo)}. Nothing from it reached your team before you could check it.`}</span>
+          <span className="min-w-0 flex-1">{inPrivateWeek ? `Until ${fmtLong(privateTo)}, nobody at ${c.name} sees anything from you: not your manager, not ${owner.name.split(" ")[0]}. ${APP} is already learning from it, and anything you delete this week never counts.` : `Your first 7 days stayed private from ${c.name}, until ${fmtLong(privateTo)}. Nothing from them reached your team before you could check it.`}</span>
           {inPrivateWeek && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => go("me")}>See what was picked up</Button>}
         </div>
       )}
@@ -111,7 +111,7 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
           <li className="flex gap-3 border-t py-2.5 first:border-t-0"><span className="w-32 shrink-0 font-medium">You</span><span className="text-[var(--text-secondary)]">My work: your time, your repeat work and what agents take off your plate.</span></li>
           <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">Your manager</span><span className="text-[var(--text-secondary)]">Your team&apos;s totals and the interview summary you approve. Never your own hours, your pay rate or your My work page.</span></li>
           <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">{owner.name.split(" ")[0]} (owner)</span><span className="text-[var(--text-secondary)]">The same team totals, plus who has finished setup. Never one person&apos;s numbers.</span></li>
-          <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">Aalpha</span><span className="text-[var(--text-secondary)]">Reviews every finding before your company sees it. Subhan answers your questions.</span></li>
+          <li className="flex gap-3 border-t py-2.5"><span className="w-32 shrink-0 font-medium">Aalpha</span><span className="text-[var(--text-secondary)]">Sees the steps of your work from day 1, to find repeat work and build the agents. Reviews every finding before your company sees it. Subhan answers your questions.</span></li>
         </ul>
       </Section>
 

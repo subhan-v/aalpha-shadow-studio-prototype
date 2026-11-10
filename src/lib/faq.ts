@@ -13,7 +13,7 @@ export const FAQ: Faq[] = [
   { id: "captures", asked: 4, q: "What does it capture? Is it recording my screen?",
     a: "In work browser mode: the work sites you use and the steps you take in them, no screenshots. With the Mac app: screenshots at intervals, the app, site and clicks. Never what you type, and no video, microphone or camera." },
   { id: "private", asked: 4, q: "What about personal stuff that ends up on screen?",
-    a: "Private info is redacted on your laptop before anything is sent, so we never see it. Screenshots are deleted after 7 days, and your first week is private to you, so you can delete anything first." },
+    a: "Private info is redacted on your laptop before anything is sent, so we never see it. Screenshots are deleted after 7 days, and for your first 7 days nobody at your company sees anything from you, so you can delete anything first." },
   { id: "pause", asked: 3, q: "Can I pause it outside work hours?",
     a: "It only runs inside your work hours and stops when your screen locks. You can also pause any time from the menu bar." },
   { id: "chrome", asked: 2, q: "Can I keep my personal Chrome profile out?",
