@@ -4,10 +4,11 @@
 // and the client shows as a renewal decision overdue. A lost client is offboarded and leaves the
 // day-to-day lists, but stays in Retention so churn is counted from real outcomes.
 
-import { addDays, diffDays } from "./dates"
+import { addDays, diffDays, fmt } from "./dates"
 import { dateOfDay, dayN } from "./engine"
 import type { ChurnReason, Client, ISODate, Renewal } from "./types"
 import { APP } from "@/lib/flags"
+import { OFFBOARD_DELETE_DAYS } from "./retention"
 
 export const CHURN_REASONS: ChurnReason[] = ["Didn't see enough value", "Price", "Budget cut", "Doing it in-house", "Champion left", "Went with someone else", "Other"]
 
@@ -88,8 +89,14 @@ export const lose = (c: Client, today: ISODate, by: string, reason: ChurnReason,
 export const reopen = (c: Client, today: ISODate, by: string): Client =>
   log({ ...c, renewal: { stage: "Open", openedAt: c.renewal?.openedAt ?? today } }, today, `Renewal reopened by ${by}.`)
 
-export const offboard = (c: Client, today: ISODate): Client =>
-  log({ ...c, offboardedAt: today, seats: c.seats.map((x) => ({ ...x, away: "excluded" as const })) }, today, `Offboarded: ${APP} removed from every computer and the data deletion scheduled.`)
+export const offboard = (c: Client, today: ISODate): Client => {
+  const due = addDays(today, OFFBOARD_DELETE_DAYS)
+  return log({ ...c, offboardedAt: today, deletionDueAt: due, seats: c.seats.map((x) => ({ ...x, away: "excluded" as const })) }, today, `Offboarded: ${APP} removed from every computer. All data to be deleted by ${fmt(due)}.`)
+}
+
+/** The last offboarding step: everything is gone and the owner has been told in writing. */
+export const confirmDataDeleted = (c: Client, today: ISODate): Client =>
+  log({ ...c, dataDeletedAt: today }, today, `All ${c.name} data deleted. Confirmation sent to ${(c.seats[0]?.name ?? "the owner").replace(/\.$/, "")}.`)
 
 /** Sample renewal for a client already past day 90 when the prototype starts. */
 export const sampleRenewed = (c: Client, price: number): Renewal => {

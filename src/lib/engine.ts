@@ -6,9 +6,10 @@ import { addDays, diffDays, fmt, fridayOf, hash, weekStart } from "./dates"
 import { scorecard, wpuReport } from "./delivery"
 import { hasConsent } from "./consent"
 import { canMoney } from "./access"
-import { churned, day91, offboard, openRenewal, overdueDays, past90, phase, renewalStage, sendProposal } from "./renewal"
+import { churned, confirmDataDeleted, day91, offboard, openRenewal, overdueDays, past90, phase, renewalStage, sendProposal } from "./renewal"
 import type { Action, Agent, AgentStatus, Alert, Client, ISODate, Req, Seat, Severity, State, Workflow } from "./types"
 import { APP } from "@/lib/flags"
+import { OFFBOARD_DELETE_DAYS, offboardDeletionDue } from "./retention"
 
 export const TARGET = 40 // hours a week, both guarantees
 
@@ -245,7 +246,11 @@ export function actions(c: Client, today: ISODate): Action[] {
 
   // A lost client only needs offboarding.
   if (churned(c, today)) {
-    if (!c.offboardedAt) push("offboard", "High", "Offboard the client", `Remove ${APP} from every computer and schedule the data deletion.`, today, "Mark offboarded", (x, t) => offboard(x, t))
+    if (!c.offboardedAt) push("offboard", "High", "Offboard the client", `Remove ${APP} from every computer. All data must then be deleted within ${OFFBOARD_DELETE_DAYS} days.`, today, "Mark offboarded", (x, t) => offboard(x, t))
+    else if (!c.dataDeletedAt) {
+      const due = offboardDeletionDue(c) ?? today
+      push("delete-data", due <= today ? "Critical" : "High", "Delete the client's data", `Everything we hold for ${c.name} must be gone by ${fmt(due)}. Then send the owner the confirmation.`, due, "Mark data deleted", (x, t) => confirmDataDeleted(x, t))
+    }
     return a
   }
 

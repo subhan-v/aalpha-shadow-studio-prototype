@@ -13,6 +13,7 @@ import { diffDays, fmt } from "@/lib/dates"
 import { dateOfDay, dayN } from "@/lib/engine"
 import { recurringPrice } from "@/lib/finance"
 import { CHURN_REASONS, day91, lose, openRenewal, overdueDays, renew, renewalStage, reopen, sendProposal } from "@/lib/renewal"
+import { offboardDeletionDue } from "@/lib/retention"
 import { useStore } from "@/lib/store"
 import type { ChurnReason, Client } from "@/lib/types"
 
@@ -84,7 +85,7 @@ export function RenewalCard({ c }: { c: Client }) {
           <span className="w-full text-xs text-[var(--text-muted)]">Nothing bills after day 90. The client moves to Lost and offboarding becomes the next action.</span>
         </form>
       )}
-      {stage === "Lost" && <p className="mt-2 text-xs text-[var(--text-muted)]">{c.offboardedAt ? `Offboarded ${fmt(c.offboardedAt)}.` : "Offboarding is the next action."}</p>}
+      {stage === "Lost" && <p className="mt-2 text-xs text-[var(--text-muted)]">{c.offboardedAt ? `Offboarded ${fmt(c.offboardedAt)}. ${c.dataDeletedAt ? `All data deleted ${fmt(c.dataDeletedAt)}, owner told.` : `All data due to be deleted by ${fmt(offboardDeletionDue(c)!)}.`}` : "Offboarding is the next action."}</p>}
     </Section>
   )
 }

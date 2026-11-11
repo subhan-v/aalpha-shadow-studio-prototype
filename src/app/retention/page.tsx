@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { addDays, fmt } from "@/lib/dates"
 import { recurringPrice } from "@/lib/finance"
 import { retention } from "@/lib/health"
+import { offboardDeletionDue } from "@/lib/retention"
 import { useStore } from "@/lib/store"
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`
@@ -82,7 +83,7 @@ export default function Retention() {
         <Section title="Lost clients" sub="Lost at renewal or cancelled later, with the same seven reasons. They leave every work list." right={<span className="flex flex-wrap gap-1.5">{reasons.map(([k, v]) => <Pill key={k} t="muted">{k} · {v}</Pill>)}</span>}>
           <div className="overflow-x-auto">
             <Table className="min-w-[760px]">
-              <TableHeader><TableRow><TableHead>Client</TableHead><TableHead>Left</TableHead><TableHead>How</TableHead><TableHead>Reason</TableHead><TableHead>What they said</TableHead><TableHead className="text-right">A month lost</TableHead><TableHead>Offboarded</TableHead></TableRow></TableHeader>
+              <TableHeader><TableRow><TableHead>Client</TableHead><TableHead>Left</TableHead><TableHead>How</TableHead><TableHead>Reason</TableHead><TableHead>What they said</TableHead><TableHead className="text-right">A month lost</TableHead><TableHead>Offboarded</TableHead><TableHead>Data deleted</TableHead></TableRow></TableHeader>
               <TableBody>
                 {r.lost.map(({ c, how, at, reason, note }) => (
                   <TableRow key={c.id}>
@@ -93,6 +94,7 @@ export default function Retention() {
                     <TableCell className="max-w-72 whitespace-normal text-xs text-[var(--text-secondary)]">{note ?? "–"}</TableCell>
                     <TableCell className="text-right tabular-nums">{usd(recurringPrice(s, c))}</TableCell>
                     <TableCell className="text-xs">{c.offboardedAt ? fmt(c.offboardedAt) : <Pill t="warn">Not yet</Pill>}</TableCell>
+                    <TableCell className="text-xs">{c.dataDeletedAt ? fmt(c.dataDeletedAt) : c.offboardedAt ? <Pill t="warn">Due {fmt(offboardDeletionDue(c)!)}</Pill> : "–"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

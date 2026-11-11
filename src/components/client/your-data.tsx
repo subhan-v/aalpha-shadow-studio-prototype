@@ -19,6 +19,8 @@ import type { Client, Seat } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { PRIVACY } from "./how"
 import { APP } from "@/lib/flags"
+import { DELETE_WITHIN_DAYS, OFFBOARD_DELETE_DAYS } from "@/lib/retention"
+import { RetentionList } from "./settings"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -106,6 +108,10 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
         </div>
       </Section>
 
+      <Section title="How long we keep it" sub="Then it is deleted, without you asking">
+        <RetentionList />
+      </Section>
+
       <Section title="Who sees what" sub="Inside your company, and at Aalpha">
         <ul className="flex flex-col text-sm">
           <li className="flex gap-3 border-t py-2.5 first:border-t-0"><span className="w-32 shrink-0 font-medium">You</span><span className="text-[var(--text-secondary)]">My work: your time, your repeat work and what agents take off your plate.</span></li>
@@ -120,8 +126,10 @@ export function YourData({ c, me, go }: { c: Client; me: Seat; go: (tab: string)
           <Button variant="outline" className="rounded-[10px]" onClick={() => go("me")}><Pause />Pause</Button>
           <Button variant="outline" className="rounded-[10px]" onClick={() => go("settings")}><Settings />Change your allowlist</Button>
           <Button variant="outline" className="rounded-[10px]" onClick={() => go("settings")}>Delete a day</Button>
+          <Button variant="outline" className="rounded-[10px]" onClick={() => go("settings")}>Delete everything of mine</Button>
+          <Button variant="outline" className="rounded-[10px]" onClick={() => go("settings")}>Download my data</Button>
         </div>
-        <p className="mt-3 text-xs text-[var(--text-muted)]">Deleting a day goes to Subhan for approval so the team&apos;s baseline stays intact. You see the answer in Settings.</p>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">A deletion is carried out within {DELETE_WITHIN_DAYS} days and can&apos;t be turned down. If {c.name} stops working with Aalpha, everything is deleted within {OFFBOARD_DELETE_DAYS} days.</p>
       </Section>
 
       <Section title="Common questions" sub="Answers Subhan approved" right={read ? <span className="text-sm text-[var(--delta-good)]">Marked as read</span> : <Button size="sm" className="rounded-[10px]" onClick={markRead}>I&apos;ve read these</Button>}>

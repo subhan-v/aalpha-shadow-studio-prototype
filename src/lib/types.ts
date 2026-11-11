@@ -258,6 +258,7 @@ export type Request = {
   assignee: string
   linear?: { id: string; state: "Todo" | "In progress" | "Done" } | null
   action?: "unlock-goals" // approving it unlocks the client's goals
+  scope?: "day" | "person" | "company" // Data deletion only: how much is being deleted
   thread: { at: ISODate; who: string; text: string }[]
 }
 
@@ -336,6 +337,8 @@ export type Client = {
   workflowsPublished: boolean
   renewalOpened: boolean
   offboardedAt?: ISODate | null // Shadow removed and data deletion scheduled after the client left
+  deletionDueAt?: ISODate | null // the date all of this client's data must be gone by
+  dataDeletedAt?: ISODate | null // when the deletion was done and the owner was told
   renewal?: Renewal | null // the move from the 90 days to the monthly plan; nothing bills after day 90 without it
   linearKey: string
   slackSlug: string

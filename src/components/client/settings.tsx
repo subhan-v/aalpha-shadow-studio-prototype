@@ -31,6 +31,7 @@ import { ChannelsPanel, ConnectorsPanel, ReportDelivery } from "./connect"
 import { isExec } from "@/lib/setup"
 import { homeTeam, seatsInScope, suggestFunction, teamsOf } from "@/lib/teams"
 import { APP } from "@/lib/flags"
+import { DELETE_WITHIN_DAYS, deletionDue, EXPORT_CONTENTS, OFFBOARD_DELETE_DAYS, RETENTION, SCREENSHOT_DAYS, SLACK_TEXT_DAYS } from "@/lib/retention"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 const SEES: Record<Role, string> = { Owner: "Everything, named people", Manager: "Their teams, named people", Member: "Their own time, team totals" }
@@ -40,9 +41,9 @@ export type SettingsRole = Role | "Admin"
 
 export function ClientSettings({ c, role, me }: { c: Client; role: SettingsRole; me?: Seat }) {
   const tabs = role === "Admin"
-    ? [["business", "Business profile"], ["org", "Organization"], ["seats", "Seats and access"], ["capture", "Capture rules"], ["schedule", "Recording schedules"], ["connections", "Connections"], ["pay", "Pay rates"]]
+    ? [["business", "Business profile"], ["org", "Organization"], ["seats", "Seats and access"], ["capture", "Capture rules"], ["schedule", "Recording schedules"], ["connections", "Connections"], ["pay", "Pay rates"], ["data", "Data and retention"]]
     : role === "Owner"
-    ? [["business", "Business profile"], ["org", "Organization"], ["seats", "Seats and access"], ["capture", "Capture rules"], ["schedule", "Recording schedules"], ["connections", "Connections"], ["pay", "Pay rates"], ["mine", "My settings"]]
+    ? [["business", "Business profile"], ["org", "Organization"], ["seats", "Seats and access"], ["capture", "Capture rules"], ["schedule", "Recording schedules"], ["connections", "Connections"], ["pay", "Pay rates"], ["data", "Data and retention"], ["mine", "My settings"]]
     : role === "Manager" ? [["seats", "Seats and access"], ["schedule", "Recording schedules"], ["mine", "My settings"]] : [["mine", "My settings"]]
   // ?sub= opens one section directly (the guided tour uses it for Connections).
   const want = useSearchParams().get("sub")
@@ -61,6 +62,7 @@ export function ClientSettings({ c, role, me }: { c: Client; role: SettingsRole;
       {tab === "schedule" && <Schedule c={c} canTeam={role !== "Manager"} owner={role === "Owner"} scope={role === "Manager" && me ? seatsInScope(c, "Manager", me).map((x) => x.id) : null} />}
       {tab === "connections" && <Connections c={c} who={me?.name ?? "Aalpha"} isOwner={role === "Owner"} />}
       {tab === "pay" && <PayRates c={c} />}
+      {tab === "data" && <CompanyData c={c} who={me?.name ?? "Aalpha"} isOwner={role === "Owner"} />}
       {tab === "mine" && me && role !== "Admin" && <Mine c={c} me={me} role={role} />}
     </div>
   )
@@ -139,7 +141,7 @@ function Seats({ c, canEdit }: { c: Client; canEdit: boolean }) {
                       </Select>
                     </TableCell>
                     <TableCell className="text-xs text-[var(--text-secondary)]">{SEES[r]}</TableCell>
-                    <TableCell className="text-right">{canEdit && x.id !== c.seats[0].id && <Button size="icon-sm" variant="ghost" aria-label={`Remove ${x.name}`} onClick={() => { if (window.confirm(`Remove ${x.name}'s seat? Their recording stops.`)) patch((y) => ({ ...y, seats: y.seats.filter((z) => z.id !== x.id), fit: y.fit.filter((z) => z.seatId !== x.id) }), `Seat removed: ${x.name}.`) }}><Trash2 /></Button>}</TableCell>
+                    <TableCell className="text-right">{canEdit && x.id !== c.seats[0].id && <Button size="icon-sm" variant="ghost" aria-label={`Remove ${x.name}`} onClick={() => { if (window.confirm(`Remove ${x.name}'s seat? Their recording stops, and what ${APP} holds for them alone is deleted within ${DELETE_WITHIN_DAYS} days. Team totals stay.`)) patch((y) => ({ ...y, seats: y.seats.filter((z) => z.id !== x.id), fit: y.fit.filter((z) => z.seatId !== x.id) }), `Seat removed: ${x.name}. Their own data to be deleted within ${DELETE_WITHIN_DAYS} days.`) }}><Trash2 /></Button>}</TableCell>
                   </TableRow>
                 )
               })}
@@ -326,14 +328,79 @@ function Connections({ c, who, isOwner }: { c: Client; who: string; isOwner: boo
 
 /** A person's own consent record, and the way to withdraw it. Withdrawing stops their recording. */
 function ConsentRecord({ c, me }: { c: Client; me: Seat }) {
-  const { update } = useStore()
+  const { update, mutate } = useStore()
+  const withdraw = () => {
+    if (!window.confirm(`Withdraw your consent? ${APP} stops recording you, and your owner is told.`)) return
+    const wipe = window.confirm(`Also delete everything ${APP} has collected from you so far?\n\nOK: it is deleted within ${DELETE_WITHIN_DAYS} days.\nCancel: it is kept, and you can delete it later in My data.`)
+    update(c.id, (x, t) => ({ ...x, seats: x.seats.map((y) => (y.id === me.id ? { ...y, consent: false, consentVersion: null } : y)), log: [{ date: t, text: `${me.name} withdrew consent. Recording stopped for them.` }, ...x.log] }))
+    if (wipe) mutate((x) => newRequest(x, { clientId: c.id, from: me.name, source: "Member", kind: "Data deletion", scope: "person", title: `Delete everything held for ${me.name}`, detail: `${me.name} withdrew consent and asked for everything collected from them to be deleted.`, priority: "High", assignee: c.owner }))
+  }
   return (
     <Section title="Your consent" sub="What you agreed to, and when">
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className="flex-1">{me.consent ? `You agreed to ${me.consentVersion ?? c.consentVersion ?? "the consent form"}${me.consentAt ? ` on ${fmtLong(me.consentAt)}` : ""}.` : "You haven't agreed to the consent form, so nothing is recorded for you."}</span>
-        {me.consent && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => { if (window.confirm(`Withdraw your consent? ${APP} stops recording you, and your owner is told.`)) update(c.id, (x, t) => ({ ...x, seats: x.seats.map((y) => (y.id === me.id ? { ...y, consent: false, consentVersion: null } : y)), log: [{ date: t, text: `${me.name} withdrew consent. Recording stopped for them.` }, ...x.log] })) }}>Withdraw consent</Button>}
+        {me.consent && <Button size="sm" variant="outline" className="rounded-[10px]" onClick={withdraw}>Withdraw consent</Button>}
       </div>
     </Section>
+  )
+}
+
+// ── retention and deletion ──────────────────────────────────────────────────
+
+/** The same retention periods everywhere: consent form, Your data, Settings and Studio. */
+export function RetentionList() {
+  return (
+    <ul className="flex flex-col text-sm">
+      {RETENTION.map((r) => (
+        <li key={r.what} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-t py-2.5 first:border-t-0">
+          <span className="w-64 shrink-0 font-medium">{r.what}</span>
+          <span className="w-44 shrink-0 tabular-nums">{r.kept}</span>
+          <span className="min-w-0 flex-1 text-[var(--text-secondary)]">{r.note}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** Owner (and Aalpha): how long data is kept, a copy of it, and deleting all of it. */
+function CompanyData({ c, who, isOwner }: { c: Client; who: string; isOwner: boolean }) {
+  const { s, mutate } = useStore()
+  const all = s.requests.filter((r) => r.clientId === c.id && r.kind === "Data deletion")
+  const open = all.filter((r) => r.status !== "Done" && r.status !== "Declined")
+  const company = open.find((r) => r.scope === "company")
+  const askAll = () => {
+    if (!window.confirm(`Delete everything ${APP} holds for ${c.name}? Every person's steps, screenshots, Slack messages, interviews, findings and reports are removed within ${DELETE_WITHIN_DAYS} days. Recording stops for the whole team. This can't be undone.`)) return
+    mutate((x) => newRequest(x, { clientId: c.id, from: who, source: "Client app", kind: "Data deletion", scope: "company", title: `Delete all ${c.name} data`, detail: `${who} asked for everything held for ${c.name} to be deleted.`, priority: "Urgent", assignee: c.owner }))
+  }
+  return (
+    <>
+      <Section title="How long we keep it" sub={`The same periods your team agreed to. Screenshots ${SCREENSHOT_DAYS} days, Slack message text ${SLACK_TEXT_DAYS} days.`}>
+        <RetentionList />
+      </Section>
+      <Section title="Deletion requests" sub={`Anyone on the team can ask. Each one is carried out within ${DELETE_WITHIN_DAYS} days and can't be declined.`}>
+        {all.length === 0 ? <p className="text-sm text-[var(--text-secondary)]">No one has asked for a deletion yet.</p> : (
+          <ul className="flex flex-col text-sm">
+            {all.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 border-t py-2.5 first:border-t-0">
+                <span className="min-w-0 flex-1 truncate">{r.scope === "company" ? r.title : r.scope === "person" ? "One person asked for everything of theirs to be deleted" : "One person asked for a day to be deleted"}</span>
+                <span className="text-xs text-[var(--text-muted)]">{r.status === "Done" ? "Deleted" : `Due ${fmtLong(deletionDue(r))}`}</span>
+                <Pill t={r.status === "Done" ? "good" : "info"}>{r.status === "Done" ? "Done" : "Under way"}</Pill>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-2 text-xs text-[var(--text-muted)]">You see that a request was made, not who made it or which day.</p>
+      </Section>
+      <Section title="Your company's data" sub="Take a copy, or have all of it removed">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" className="rounded-[10px]" onClick={() => download(`${c.name.toLowerCase().replace(/\s+/g, "-")}-headroom-export.json`, JSON.stringify({ company: c.name, exported: s.today, by: who, contains: ["Team totals and results", "Workflows and findings", "Goals and playbook", "Agents and their hours back", "Settings, capture rules and schedules"], excludes: "Any one person's own records. Each person downloads their own.", note: "Sample export from the prototype. The real file holds the records themselves." }, null, 2), "application/json")}><Download />Export company data</Button>
+          {isOwner
+            ? <Button variant="outline" className="rounded-[10px] text-[var(--status-critical)]" disabled={!!company} onClick={askAll}><Trash2 />{company ? `Full deletion under way, by ${fmtLong(deletionDue(company))}` : "Delete all company data"}</Button>
+            : <span className="text-xs text-[var(--text-muted)]">Only the owner can ask for all company data to be deleted.</span>}
+        </div>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">{c.dataDeletedAt ? `All data was deleted on ${fmtLong(c.dataDeletedAt)}. ` : ""}If we stop working together, everything is deleted within {OFFBOARD_DELETE_DAYS} days and you get a written confirmation. You don&apos;t need to ask.</p>
+      </Section>
+    </>
   )
 }
 
@@ -399,7 +466,11 @@ function Mine({ c, me, role }: { c: Client; me: Seat; role: Role }) {
   const [kind, setKind] = useState<"Question" | "Bug" | "Change">("Question")
   const win = scheduleFor(c, me.id)
   const mine = s.requests.filter((r) => r.clientId === c.id && r.from === me.name)
-  const ask = (k: "Question" | "Bug" | "Change" | "Data deletion", title: string, detail = "") => mutate((x) => newRequest(x, { clientId: c.id, from: me.name, source: role === "Member" ? "Member" : "Client app", kind: k, title, detail, priority: k === "Bug" ? "High" : "Normal", assignee: c.owner }))
+  const ask = (k: "Question" | "Bug" | "Change", title: string, detail = "") => mutate((x) => newRequest(x, { clientId: c.id, from: me.name, source: role === "Member" ? "Member" : "Client app", kind: k, title, detail, priority: k === "Bug" ? "High" : "Normal", assignee: c.owner }))
+  const del = (scope: "day" | "person", title: string, detail: string) => mutate((x) => newRequest(x, { clientId: c.id, from: me.name, source: role === "Member" ? "Member" : "Client app", kind: "Data deletion", scope, title, detail, priority: scope === "person" ? "High" : "Normal", assignee: c.owner }))
+  const openDel = mine.filter((r) => r.kind === "Data deletion" && r.status !== "Done" && r.status !== "Declined")
+  const pendingDay = openDel.some((r) => r.title.endsWith(fmtLong(from)))
+  const pendingAll = openDel.some((r) => r.scope === "person")
   const teamBlocks = [...c.capture.blockApps, ...c.capture.blockDomains].map((x) => x.toLowerCase())
   const p: SeatPrefs = c.prefs[me.id] ?? { pausedUntil: null, start: null, end: null, block: [], allow: [] }
   const setP = (q: Partial<SeatPrefs>, text?: string) => patch((y) => ({ ...y, prefs: { ...y.prefs, [me.id]: { ...p, ...q } } }), text)
@@ -436,13 +507,18 @@ function Mine({ c, me, role }: { c: Client; me: Seat; role: Role }) {
         <ChipList label="Apps and websites" items={p.allow} tone="good" placeholder="e.g. Notion" onChange={(v) => setP({ allow: v })} />
         {conflicts.length > 0 && <p className="mt-3 flex items-start gap-2 rounded-xl bg-[var(--watch-bg)] p-3 text-xs text-[var(--watch-fg)]"><AlertTriangle className="mt-0.5 size-3.5 shrink-0" />{conflicts.join(", ")} {conflicts.length > 1 ? "are" : "is"} blocked for the whole team. The team block wins, so {conflicts.length > 1 ? "they stay" : "it stays"} off.</p>}
       </Section>
-      <Section title="My data" sub="Yours to see and remove" className="lg:col-span-2">
+      <Section title="My data" sub="Yours to see, download and remove" className="lg:col-span-2">
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-xs text-[var(--text-muted)]">Delete everything captured on<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 w-44 rounded-[10px]" /></label>
-          <Button variant="outline" className="h-9 rounded-[10px]" disabled={mine.some((r) => r.kind === "Data deletion" && r.status === "Waiting on approval" && r.title.endsWith(fmtLong(from)))} onClick={() => ask("Data deletion", `Delete ${me.name}'s data for ${fmtLong(from)}`, `${me.name} asked to delete everything captured on ${fmtLong(from)}.`)}><Trash2 />Request deletion</Button>
-          <Button variant="outline" className="h-9 rounded-[10px]" onClick={() => download(`${me.name.toLowerCase().replace(/\s+/g, "-")}-shadow-settings.json`, JSON.stringify({ person: me.name, recording: p, team: { start: c.capture.start, end: c.capture.end } }, null, 2), "application/json")}><Download />Download my settings</Button>
+          <Button variant="outline" className="h-9 rounded-[10px]" disabled={pendingDay} onClick={() => del("day", `Delete ${me.name}'s data for ${fmtLong(from)}`, `${me.name} asked to delete everything captured on ${fmtLong(from)}.`)}><Trash2 />Delete that day</Button>
+          <Button variant="outline" className="h-9 rounded-[10px] text-[var(--status-critical)]" disabled={pendingAll} onClick={() => { if (window.confirm(`Delete everything ${APP} holds for you? Your steps, screenshots, Slack messages, interview and findings are removed within ${DELETE_WITHIN_DAYS} days. Recording carries on unless you also withdraw consent.`)) del("person", `Delete everything held for ${me.name}`, `${me.name} asked for everything collected from them to be deleted.`) }}><Trash2 />{pendingAll ? "Full deletion under way" : "Delete everything of mine"}</Button>
+          <Button variant="outline" className="h-9 rounded-[10px]" onClick={() => download(`${me.name.toLowerCase().replace(/\s+/g, "-")}-headroom-data.json`, JSON.stringify({ person: me.name, exported: s.today, consent: { agreed: !!me.consent, version: me.consentVersion ?? null, on: me.consentAt ?? null }, recording: p, team: { start: c.capture.start, end: c.capture.end }, contains: EXPORT_CONTENTS, note: "Sample export from the prototype. The real file holds the records themselves." }, null, 2), "application/json")}><Download />Download my data</Button>
         </div>
-        <p className="mt-2 text-xs text-[var(--text-muted)]">Deletions go to Subhan for approval, so a mistake can&apos;t wipe the team&apos;s baseline. You&apos;ll see the answer here.</p>
+        <p className="mt-2 text-xs text-[var(--text-muted)]">A deletion is carried out within {DELETE_WITHIN_DAYS} days and can&apos;t be turned down. You&apos;ll see the confirmation under My requests. Team totals already shared stay as totals, with nothing of yours in them that can be traced to you.</p>
+        <div className="mt-4 flex flex-col border-t pt-3">
+          <span className="mb-1 text-xs text-[var(--text-muted)]">How long {APP} keeps what it picks up</span>
+          <RetentionList />
+        </div>
       </Section>
       <Section title="Get help" sub="Ask a question, report a problem or ask for a change. Subhan answers here." className="lg:col-span-2">
         <form className="flex flex-col gap-2" onSubmit={(e) => { e.preventDefault(); if (!help.trim()) return; ask(kind === "Question" && /broken|bug|wrong|error|not working|doesn.t work|crash|stuck/i.test(help) ? "Bug" : kind, help.trim().slice(0, 80), help.trim()); setHelp("") }}>
@@ -455,7 +531,7 @@ function Mine({ c, me, role }: { c: Client; me: Seat; role: Role }) {
             <span className="mb-1 text-xs text-[var(--text-muted)]">My requests</span>
             {mine.map((r) => (
               <div key={r.id} className="flex flex-col gap-1 border-t py-2.5 first:border-t-0">
-                <span className="flex items-center justify-between gap-3 text-sm"><span className="truncate">{r.title}</span><Pill t={r.status === "Done" ? "good" : r.status === "Declined" ? "muted" : r.status === "Waiting on approval" ? "warn" : "info"}>{r.status === "Sent to Linear" ? "With the dev team" : r.status}</Pill></span>
+                <span className="flex items-center justify-between gap-3 text-sm"><span className="truncate">{r.title}{r.kind === "Data deletion" && r.status !== "Done" && r.status !== "Declined" ? ` · by ${fmtLong(deletionDue(r))}` : ""}</span><Pill t={r.status === "Done" ? "good" : r.status === "Declined" ? "muted" : r.status === "Waiting on approval" ? "warn" : "info"}>{r.status === "Sent to Linear" ? "With the dev team" : r.status}</Pill></span>
                 {r.thread.filter((m) => !m.text.startsWith("Sent to the dev team") && !m.text.startsWith("Linear ") && !m.text.startsWith("Assigned")).slice(-1).map((m, i) => <span key={i} className="text-xs text-[var(--text-secondary)]">{m.who}: {m.text}</span>)}
               </div>
             ))}

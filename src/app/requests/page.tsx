@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { fmt } from "@/lib/dates"
-import { ageDays, decideDeletion, isOpen, newRequest, OPEN, patchRequest, sendToLinear, syncLinear } from "@/lib/requests"
+import { ageDays, completeDeletion, isOpen, newRequest, OPEN, patchRequest, sendToLinear, syncLinear } from "@/lib/requests"
 import { decideGoalChange } from "@/lib/goals"
+import { DELETE_WITHIN_DAYS, deletionDue, SCOPE_LABEL } from "@/lib/retention"
 import { useStore } from "@/lib/store"
 import type { Request } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -35,7 +36,7 @@ export default function Requests() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
         <Kpi label="Open" value={s.requests.filter(isOpen).length} />
         <Kpi label="Urgent" value={s.requests.filter((x) => x.priority === "Urgent" && OPEN.includes(x.status)).length} t="bad" />
-        <Kpi label="Waiting on approval" value={s.requests.filter((x) => x.status === "Waiting on approval").length} t="warn" note="Deletion requests" />
+        <Kpi label="Deletions to carry out" value={s.requests.filter((x) => x.kind === "Data deletion" && OPEN.includes(x.status)).length} t="warn" note={`Due within ${DELETE_WITHIN_DAYS} days of the ask`} />
         <Kpi label="With the dev team" value={s.requests.filter((x) => x.linear && x.linear.state !== "Done").length} note="Open in Linear" />
       </div>
       {adding && (
@@ -89,10 +90,10 @@ export default function Requests() {
                     <Button size="sm" className="rounded-[10px]" onClick={() => mutate((p) => decideGoalChange(p, r.id, true))}><Check />Approve and unlock goals</Button>
                     <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => mutate((p) => decideGoalChange(p, r.id, false))}><X />Decline</Button>
                   </>
-                ) : r.kind === "Data deletion" && r.status === "Waiting on approval" ? (
+                ) : r.kind === "Data deletion" && OPEN.includes(r.status) ? (
                   <>
-                    <Button size="sm" className="rounded-[10px]" onClick={() => mutate((p) => decideDeletion(p, r.id, true))}><Check />Approve deletion</Button>
-                    <Button size="sm" variant="outline" className="rounded-[10px]" onClick={() => mutate((p) => decideDeletion(p, r.id, false))}><X />Decline</Button>
+                    <Button size="sm" className="rounded-[10px]" onClick={() => mutate((p) => completeDeletion(p, r.id))}><Check />Mark deleted</Button>
+                    <span className="self-center text-xs text-[var(--text-muted)]">{SCOPE_LABEL[r.scope ?? "day"]} · due {fmt(deletionDue(r))} · a deletion request can&apos;t be declined</span>
                   </>
                 ) : (
                   <>

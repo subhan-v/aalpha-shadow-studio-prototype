@@ -1,4 +1,5 @@
 import { APP } from "@/lib/flags"
+import { DELETION_LINE, OFFBOARD_DELETE_DAYS, RETENTION_LINE } from "./retention"
 // The questions people ask before they install, from the first beta teams (Trivium, Oct 2026),
 // with the answers Subhan approved. Short on purpose: each one fits in a Slack reply.
 // Only state what Shadow does today; scheduled pause and Chrome profiles are not built yet.
@@ -30,6 +31,8 @@ export const FAQ: Faq[] = [
     a: "You approve the summary first. Then your manager sees it, and Subhan at Aalpha. The audio is deleted after processing." },
   { id: "manager", asked: 1, q: "What does my manager see?",
     a: "Team totals, the workflows the team repeats, and the interview summary you approve. Never your own hours, screenshots, window titles, blocked apps or pay." },
+  { id: "keep", asked: 0, q: "How long do you keep my data, and can I delete it?",
+    a: `${RETENTION_LINE} ${DELETION_LINE} When your company stops working with us, everything is deleted within ${OFFBOARD_DELETE_DAYS} days.` },
   { id: "guide", asked: 1, q: "Is there a guide I can read?",
     a: "Yes, I'll send it over. Happy to do a 10-minute call and set it up with you too." },
 ]

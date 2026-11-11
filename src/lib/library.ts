@@ -85,8 +85,9 @@ export const LIBRARY: LibDoc[] = [
     id: "privacy", title: "Handle a data deletion request", when: "Whenever one arrives in Requests", owner: "Account lead", mins: 10, tags: ["delete", "deletion", "privacy", "data", "request"],
     steps: [
       { text: "Check the request came from the person whose data it is." },
-      { text: "Check it doesn't fall inside the baseline week. If it does, talk to the owner first." },
-      { text: "Approve or decline in Requests. The person sees the answer in their Settings." },
+      { text: "A request is never declined. If it touches the baseline week, tell the owner the baseline will be re-measured." },
+      { text: "Delete within 7 days: one day, everything for one person, or the whole company, as asked." },
+      { text: "Mark it deleted in Requests. The person sees the confirmation in their Settings." },
     ],
   },
 ]

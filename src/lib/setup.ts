@@ -7,6 +7,7 @@ import { installed } from "./engine"
 import { hasConsent } from "./consent"
 import type { Client, Connector, InterviewSet, Role, Seat, State } from "./types"
 import { APP } from "@/lib/flags"
+import { DELETION_LINE, RETENTION_LINE } from "./retention"
 
 // ── connectors ──────────────────────────────────────────────────────────────
 
@@ -102,7 +103,8 @@ export const CONSENT_POINTS = [
   "It runs inside your work hours and stops when your screen locks. You can pause any time.",
   "For your first 7 days nobody at your company sees anything from you. Aalpha's system is already learning from it, and anything you delete never counts.",
   SLACK_SCOPE,
-  "You can withdraw your consent in your settings. It stops for you when you do.",
+  `${RETENTION_LINE} ${DELETION_LINE}`,
+  "You can withdraw your consent in your settings. It stops for you when you do, and you can have everything deleted at the same time.",
 ]
 
 // ── required onboarding ─────────────────────────────────────────────────────
